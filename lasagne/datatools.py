@@ -3,6 +3,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import random
+from subprocess import call
 
 def load_dataset(
     datadir = '../data',
@@ -10,9 +11,13 @@ def load_dataset(
     geofile = 'USABLE_PointbyPoint.mat',
     field = 'MATRICE', 
     geofield = 'USABLE_PointbyPoint1',
-    linnum = [134,135]
+    linnum = [134,135] #ubar, vbar
     ):
     
+    if not os.path.isfile(os.path.abspath(os.path.join(datadir,fname))):
+        url = 'https://www.dropbox.com/sh/9rg6nrn8xhk5wjz/AACOB1QGXAFT4w9dnsujefsTa/MATRICE_MAREE_11_2015.mat'
+        #call(["wget", "-P "+os.path.abspath(datadir), url],shell=True)
+        os.system("wget " + "-P " + os.path.abspath(datadir) + " " + url)
     data = loadmat(os.path.join(datadir,fname))
     data = np.transpose(data[field][linnum,:])
     geo  = loadmat(os.path.join(datadir,geofile))
