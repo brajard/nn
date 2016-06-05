@@ -10,7 +10,7 @@ from datatools import load_dataset, split_base, plot_images
 X = load_dataset()
 print 'size of total base',X.shape
 
-#Split in learn, test base (default 80%/10%)
+#Split in learn, test base (using scikit ??)
 
 ## Load nnet
 
