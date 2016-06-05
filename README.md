@@ -10,4 +10,4 @@ Useful link ?
 
 Tutorial
 --------
-To run a full example, see  `[lasagne/script_test.py](lasagne/script_test.py)`
+To run a full example, see  [lasagne/script_test.py](lasagne/script_test.py)
