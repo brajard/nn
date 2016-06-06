@@ -11,8 +11,11 @@ Useful link ?
 Install
 -------
 `pip install -r https://raw.githubusercontent.com/dnouri/nolearn/master/requirements.txt`
+
 `pip install git+https://github.com/dnouri/nolearn.git@master#egg=nolearn==0.7.git`
+
 `pip install --upgrade https://github.com/Theano/Theano/archive/master.zip`
+
 `pip install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip`
 
 Tutorial
