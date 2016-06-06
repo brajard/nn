@@ -35,8 +35,9 @@ def plot_images(X,ind,titles=['Ubar','Vbar']):
     for j in range(len(ind)):
         fig,ax = plt.subplots(X.shape[1])
         for i in range(len(ax)):
-            ax[i].imshow(X[ind[j],i])
+            pc = ax[i].imshow(X[ind[j],i])
             ax[i].set_title(titles[i]+'(' + str(ind[j]) +')')
+            plt.colorbar(pc)
 
 def split_base(X,frac_train = 0.8,frac_test = 0.1, r_state = None,oprint = True):
     if r_state is None :
@@ -52,3 +53,32 @@ def split_base(X,frac_train = 0.8,frac_test = 0.1, r_state = None,oprint = True)
         print 'Test set size : ',Ntest,'/',N
     print Lind[0:10]
     return X[Lind[:Ntrain]],X[Lind[-Ntest:]],Lind[:Ntrain],Lind[-Ntest:]
+
+def plot_compare(X,X_predict,ind):
+    for j in range(len(ind)):
+        plt.figure()
+        plt.subplot(321)
+        plt.imshow(X[ind[j],0],interpolation='nearest')
+        plt.title('Ubar true')
+        plt.colorbar()
+        plt.subplot(322)
+        plt.imshow(X[ind[j],1],interpolation='nearest')
+        plt.title('Vbar true')
+        plt.colorbar()
+        plt.subplot(323)
+        plt.imshow(X_predict[ind[j],0],interpolation='nearest')
+        plt.title('Ubar predict')
+        plt.colorbar()
+        plt.subplot(324)
+        plt.imshow(X_predict[ind[j],1],interpolation='nearest')
+        plt.title('Vbar predict')
+        plt.colorbar()
+        plt.subplot(325)
+        plt.imshow(X_predict[ind[j],0]-X[ind[j],0],interpolation='nearest')
+        plt.title('err Ubar')
+        plt.colorbar()
+        plt.subplot(326)
+        plt.imshow(X_predict[ind[j],1]-X[ind[j],1],interpolation='nearest')
+        plt.title('err Vbar')
+        plt.colorbar()
+        
