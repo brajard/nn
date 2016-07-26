@@ -7,11 +7,12 @@ from subprocess import call
 
 def load_sequence(
     data,
-    n_prev = 3):
+    n_prev = 3,
+    hor=1):
     X,Y = [],[]
-    for i in range(len(data)-n_prev):
+    for i in range(len(data)-n_prev-hor+1):
         X.append(data[i:i+n_prev])
-        Y.append(data[i+n_prev])
+        Y.append(data[i+n_prev+hor-1])
     return np.array(X),np.array(Y)
 
 def load_dataset(
@@ -107,3 +108,22 @@ def plot_compare(X,X_predict,ind):
         plt.imshow(X_predict[ind[j]]-X[ind[j]],interpolation='nearest')
         plt.title('diff')
         plt.colorbar()
+
+
+def plot_sequence(yt,yr,start=0,length=5):
+    f,ax = plt.subplots(3,length)
+    for it in range(length):
+        ax[0,it].imshow(yt[start+it], interpolation='nearest')
+#        plt.colorbar(ax[0,it])
+        ax[1,it].imshow(yr[start+it], interpolation='nearest')
+#        plt.colorbar()
+        ax[2,it].imshow(yr[start+it]-yt[start+it], interpolation='nearest')
+#        plt.colorbar()
+    
+def plot_scatter(yt,yr):
+    plt.figure()
+    plt.scatter(yt,yr)
+    corr = np.corrcoef(yt,yr)
+    print "correlation=",corr[0,1]
+    rmse = np.sqrt(np.mean((yt-yr)**2))
+    print "rmse=",rmse
