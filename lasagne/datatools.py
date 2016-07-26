@@ -5,6 +5,15 @@ import matplotlib.pyplot as plt
 import random
 from subprocess import call
 
+def load_sequence(
+    data,
+    n_prev = 3):
+    X,Y = [],[]
+    for i in range(len(data)-n_prev):
+        X.append(data[i:i+n_prev])
+        Y.append(data[i+n_prev])
+    return np.array(X),np.array(Y)
+
 def load_dataset(
     datadir = '../data',
     fname = 'MATRICE_MAREE_11_2015.mat', 
@@ -54,18 +63,18 @@ def split_base(X,frac_train = 0.8,frac_test = 0.1, r_state = None,oprint = True)
     print Lind[0:10]
     return X[Lind[:Ntrain]],X[Lind[-Ntest:]],Lind[:Ntrain],Lind[-Ntest:]
 
-def plot_compare(X,X_predict,ind):
+def plot_compare1(X,X_predict,ind):
     for j in range(len(ind)):
         plt.figure()
-        plt.subplot(321)
+        plt.subplot(311)
         plt.imshow(X[ind[j],0],interpolation='nearest')
         plt.title('Ubar true')
         plt.colorbar()
-        plt.subplot(322)
+        plt.subplot(312)
         plt.imshow(X[ind[j],1],interpolation='nearest')
         plt.title('Vbar true')
         plt.colorbar()
-        plt.subplot(323)
+        plt.subplot(313)
         plt.imshow(X_predict[ind[j],0],interpolation='nearest')
         plt.title('Ubar predict')
         plt.colorbar()
@@ -82,3 +91,19 @@ def plot_compare(X,X_predict,ind):
         plt.title('err Vbar')
         plt.colorbar()
         
+
+def plot_compare(X,X_predict,ind):
+    for j in range(len(ind)):
+        plt.figure()
+        plt.subplot(311)
+        plt.imshow(X[ind[j]],interpolation='nearest')
+        plt.title('true')
+        plt.colorbar()
+        plt.subplot(312)
+        plt.imshow(X_predict[ind[j]],interpolation='nearest')
+        plt.title('predict')
+        plt.colorbar()
+        plt.subplot(313)
+        plt.imshow(X_predict[ind[j]]-X[ind[j]],interpolation='nearest')
+        plt.title('diff')
+        plt.colorbar()
