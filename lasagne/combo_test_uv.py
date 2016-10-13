@@ -24,7 +24,7 @@ plt.close("all")
 
 # Data preparation
 n_prev = 12
-npar = 3
+
 hor = 6
 Xtmp = load_dataset(linnum=[44,55,66,77,88,99,110,121,134,135])
 #44,55,66,77,88,99,110,121 : TSM at several levels
@@ -34,11 +34,11 @@ Xtsm = np.sum(Xtmp[:,:8,:,:],axis=1,keepdims=True)
 Xuv = Xtmp[:,-2:,:,:]
 
 #Normalisation
-Xuv = Xuv.reshape((Xuv.shape[0],Xuv.shape[1],1))
+#Xuv = Xuv.reshape((Xuv.shape[0],Xuv.shape[1],1))
 #Xuv = np.mean(Xuv,axis=2)
-mu_uv = np.mean(Xuv,axis=0,keepdims=True)
-sigma_uv = np.std(Xuv,axis=0,keepdims=True)
-Xuv = (Xuv-mu_uv)/sigma_uv
+#mu_uv = np.mean(Xuv,axis=0,keepdims=True)
+#sigma_uv = np.std(Xuv,axis=0,keepdims=True)
+#Xuv = (Xuv-mu_uv)/sigma_uv
 
 
 mu_tsm = np.mean(Xtsm.flatten())
@@ -54,21 +54,23 @@ Xuv[:,1,:,:] = (Xuv[:,1,:,:]-mu_v)/sigma_v
 Xtsm = (Xtsm - mu_tsm)/sigma_tsm
 
 X = np.concatenate((Xtsm,Xuv),axis=1)
-nt,nx,ny = X.shape
+nt,npar,nx,ny = X.shape
 
 
 #X = X.reshape([nt,nx*ny])
 Xapp,yapp = load_sequence(X,n_prev=n_prev,hor=hor)
 
+yapp = yapp[:,0,:,:]
+
 Xapp = Xapp.reshape([Xapp.shape[0],n_prev,npar,nx,ny])
-yapp = yapp.reshape([yapp.shape[0],npar*nx*ny])
+yapp = yapp.reshape([yapp.shape[0],nx*ny])
 
 
 # Model Definition
 in_out_neurons = nx*ny
-n_feat = 32
+n_feat = 4
 filter_size=3
-nhid = 25
+nhid = 12
 
 model = Sequential()
 
@@ -86,13 +88,13 @@ model.add(LSTM(output_dim=nhid,return_sequences=False))
 model.add(Dense(input_dim=nhid,output_dim=n_feat*nx*ny))
 model.add(Activation("relu"))
 model.add(Reshape((n_feat,nx,ny)))
-model.add(Convolution2D(npar,filter_size,filter_size,border_mode='same'))
+model.add(Convolution2D(1,filter_size,filter_size,border_mode='same'))
 model.add(Activation("linear"))
 model.add(Flatten())
 
 model.compile(loss="mean_squared_error",optimizer="rmsprop")
 
-model.fit(Xapp,yapp,batch_size=32,nb_epoch=50,validation_split=0.05)
+model.fit(Xapp,yapp,batch_size=32,nb_epoch=20,validation_split=0.05)
 y_predict = model.predict(Xapp)
 
 #plot_compare(yapp.reshape([-1,7,7]),y_predict.reshape([-1,7,7]),[50,1000,5500,7000,11000])
