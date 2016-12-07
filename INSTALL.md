@@ -12,4 +12,4 @@ Using Conda
 * `pip install --upgrade https://github.com/Theano/Theano/archive/master.zip`
 * `pip install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip`
 * `pip install keras`
-* Test if it woksrks : `./combo_test_uv.py`
+* Test if it works : `./combo_test_uv.py`
