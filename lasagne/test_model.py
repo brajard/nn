@@ -1,4 +1,6 @@
+from __future__ import print_function
 import os
+from importlib import reload
 import datatools
 reload(datatools)
 from datatools import plot_sequence,plot_scatter
@@ -34,8 +36,8 @@ yapp_c = yapp[start:,num_pix]
 ypred_c = ypred[start:,num_pix]
 ypers_c = ypers[start:,num_pix]
 
-print "NN performance:"
+print("NN performance:")
 plot_scatter(yapp_c,ypred_c)
 
-print "persistence performance:"
+print("persistence performance:")
 plot_scatter(yapp_c,ypers_c)
