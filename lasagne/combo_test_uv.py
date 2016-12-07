@@ -107,6 +107,9 @@ weights = 'weights.h5'
 data =  'data.npz'
 
 json_string = model.to_json()
+
+os.makedirs(outdir,exist_ok=True)
+
 open(os.path.join(outdir,modelname),'w').write(json_string)
 model.save_weights(os.path.join(outdir,weights),overwrite=True)
 np.savez(os.path.join(outdir,data),Xapp=Xapp,yapp=yapp)
