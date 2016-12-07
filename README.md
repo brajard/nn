@@ -11,20 +11,14 @@ Useful link ?
 
 Install
 -------
-`pip install -r https://raw.githubusercontent.com/dnouri/nolearn/master/requirements.txt`
-
-`pip install git+https://github.com/dnouri/nolearn.git@master#egg=nolearn==0.7.git`
-
-`pip install --upgrade https://github.com/Theano/Theano/archive/master.zip`
-
-`pip install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip`
-
-`pip install keras`
-
-#`pip install git+git://github.com/Theano/Theano.git --upgrade --no-deps`
+Follow directives in [INSTALL.md](INSTALL.md)
 
 Tutorial
 --------
+* To run an example of CNN+RNN including wind :
+[lasagne/combo_test_uv.py](lasagne/combo_test_uv.py)
+
+Deprecated : 
 * To run an example of CNN, see  [lasagne/script_test.py](lasagne/script_test.py)
 
 * An example of a simple RNN, see [lasagne/recurrent_test.py](lasagne/recurrent_test.py)

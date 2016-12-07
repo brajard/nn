@@ -1,9 +1,11 @@
+from __future__ import print_function
 from scipy.io import loadmat
 import numpy as np
 import os
 import matplotlib.pyplot as plt
 import random
 from subprocess import call
+
 
 def load_sequence(
     data,
@@ -59,9 +61,9 @@ def split_base(X,frac_train = 0.8,frac_test = 0.1, r_state = None,oprint = True)
     Ntrain = int(frac_train*N)
     Ntest = int(frac_test*N)
     if oprint :
-        print 'Learning set size : ',Ntrain,'/',N
-        print 'Test set size : ',Ntest,'/',N
-    print Lind[0:10]
+        print('Learning set size : ',Ntrain,'/',N)
+        print('Test set size : ',Ntest,'/',N)
+    print (Lind[0:10])
     return X[Lind[:Ntrain]],X[Lind[-Ntest:]],Lind[:Ntrain],Lind[-Ntest:]
 
 def plot_compare1(X,X_predict,ind):
@@ -124,6 +126,6 @@ def plot_scatter(yt,yr):
     plt.figure()
     plt.scatter(yt,yr)
     corr = np.corrcoef(yt,yr)
-    print "correlation=",corr[0,1]
+    print ("correlation=",corr[0,1])
     rmse = np.sqrt(np.mean((yt-yr)**2))
-    print "rmse=",rmse
+    print ("rmse=",rmse)

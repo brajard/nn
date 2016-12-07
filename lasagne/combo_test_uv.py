@@ -4,6 +4,7 @@
 ## Import libraries
 import datatools
 import os
+from importlib import reload
 reload(datatools)
 from datatools import load_dataset, plot_images, plot_compare, load_sequence
 from keras.models import Sequential  
