@@ -95,7 +95,7 @@ model.add(Flatten())
 
 model.compile(loss="mean_squared_error",optimizer="rmsprop")
 
-model.fit(Xapp,yapp,batch_size=32,nb_epoch=20,validation_split=0.05)
+model.fit(Xapp,yapp,batch_size=256,nb_epoch=5,validation_split=0.05)
 y_predict = model.predict(Xapp)
 
 #plot_compare(yapp.reshape([-1,7,7]),y_predict.reshape([-1,7,7]),[50,1000,5500,7000,11000])
