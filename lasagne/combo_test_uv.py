@@ -26,13 +26,18 @@ plt.close("all")
 # Data preparation
 n_prev = 12
 
-hor = 6
+hor = 1 #prediction horizon. 
+#For the time being, hor should be keep to 1
+
 Xtmp = load_dataset(linnum=[44,55,66,77,88,99,110,121,134,135])
 #44,55,66,77,88,99,110,121 : TSM at several levels
 # 
-Xtsm = np.sum(Xtmp[:,:8,:,:],axis=1,keepdims=True)
 
-Xuv = Xtmp[:,-2:,:,:]
+#first time step to considere
+first_time = 8*30*24
+Xtsm = np.log10(np.sum(Xtmp[first_time,:8,:,:],axis=1,keepdims=True))
+
+Xuv = Xtmp[first_time,-2:,:,:]
 
 #Normalisation
 #Xuv = Xuv.reshape((Xuv.shape[0],Xuv.shape[1],1))
