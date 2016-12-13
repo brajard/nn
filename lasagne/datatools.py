@@ -19,7 +19,7 @@ def load_sequence(
 
 def load_dataset(
     datadir = '../data',
-    fname = 'MATRICE_MAREE_11_2015.mat', 
+    fname = 'MATRICE_MAREE_06_2016.mat', 
     geofile = 'USABLE_PointbyPoint.mat',
     field = 'MATRICE', 
     geofield = 'USABLE_PointbyPoint1',
@@ -27,7 +27,8 @@ def load_dataset(
     ):
     
     if not os.path.isfile(os.path.abspath(os.path.join(datadir,fname))):
-        url = 'https://www.dropbox.com/sh/9rg6nrn8xhk5wjz/AACOB1QGXAFT4w9dnsujefsTa/MATRICE_MAREE_11_2015.mat'
+        url = 'http://skyros.locean-ipsl.upmc.fr/~jbrlod/download/MATRICE_MAREE_06_2016.mat'
+#        url = 'https://www.dropbox.com/sh/9rg6nrn8xhk5wjz/AACOB1QGXAFT4w9dnsujefsTa/MATRICE_MAREE_11_2015.mat'
         #call(["wget", "-P "+os.path.abspath(datadir), url],shell=True)
         os.system("wget " + "-P " + os.path.abspath(datadir) + " " + url)
     data = loadmat(os.path.join(datadir,fname))
@@ -40,7 +41,7 @@ def load_dataset(
     X = np.zeros((Nt,Np)+geo.shape)
     
     for (i,j),ind in np.ndenumerate(geo):
-        X[:,:,i,j] = data[ind.ravel(),:]
+        X[:,:,i,j] = data[ind.ravel()-1,:]
     return X
 
 def plot_images(X,ind,titles=['Ubar','Vbar']):

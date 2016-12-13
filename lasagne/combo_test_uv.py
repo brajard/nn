@@ -24,20 +24,28 @@ import matplotlib.pyplot as plt
 plt.close("all")
 
 # Data preparation
-n_prev = 12
+n_prev = 6
 
 hor = 1 #prediction horizon. 
 #For the time being, hor should be keep to 1
 
-Xtmp = load_dataset(linnum=[44,55,66,77,88,99,110,121,134,135])
+#Epsilon
+epsi = 1e-3
+
+#linnum=[44,55,66,77,88,99,110,121,134,135]
+linnum = [77,134,135]
+
+Xtmp = load_dataset(linnum=linnum)
 #44,55,66,77,88,99,110,121 : TSM at several levels
 # 
 
 #first time step to considere
 first_time = 8*30*24
-Xtsm = np.log10(np.sum(Xtmp[first_time,:8,:,:],axis=1,keepdims=True))
+Xtsm = np.sum(Xtmp[first_time:,:-2,:,:],axis=1,keepdims=True)
+Xtsm[Xtsm<epsi]=epsi
+#Xtsm = np.log10(Xtsm+epsi)
 
-Xuv = Xtmp[first_time,-2:,:,:]
+Xuv = Xtmp[first_time:,-2:,:,:]
 
 #Normalisation
 #Xuv = Xuv.reshape((Xuv.shape[0],Xuv.shape[1],1))
@@ -100,13 +108,13 @@ model.add(Flatten())
 
 model.compile(loss="mean_squared_error",optimizer="rmsprop")
 
-model.fit(Xapp,yapp,batch_size=256,nb_epoch=5,validation_split=0.05)
+model.fit(Xapp,yapp,batch_size=256,nb_epoch=10,validation_split=0.05)
 y_predict = model.predict(Xapp)
 
 #plot_compare(yapp.reshape([-1,7,7]),y_predict.reshape([-1,7,7]),[50,1000,5500,7000,11000])
 
 # Save nn
-outdir = '../data/nn_rec2'
+outdir = '../data/nn_rec1'
 modelname = 'rnn.json'
 weights = 'weights.h5'
 data =  'data.npz'
