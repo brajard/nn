@@ -13,7 +13,7 @@ from keras.layers.recurrent import SimpleRNN, LSTM
 from keras.layers.pooling import MaxPooling2D
 #from keras.layers.extra import TimeDistributedFlatten,TimeDistributedConvolution2D
 from keras.layers.wrappers import TimeDistributed
-from keras.layers.convolutional import Convolution2D
+from keras.layers.convolutional import Deconvolution2D,Convolution2D
 import theano
 import pandas as pd
 import pickle
@@ -90,6 +90,9 @@ filter_size=3
 nhid = 12
 pool_size = (2,2)
 
+new_nx = nx//pool_size[0]
+new_ny = ny//pool_size[1]
+
 model = Sequential()
 
 model.add(TimeDistributed(Convolution2D(n_feat,filter_size,filter_size,border_mode='same'),input_shape=(n_prev,npar,nx,ny)))
@@ -104,10 +107,11 @@ model.add(LSTM(output_dim=nhid,return_sequences=False))
 #keras.layers.recurrent.Recurrent(weights=None, return_sequences=False, go_backwards=False, stateful=False, unroll=False, consume_less='cpu', input_dim=None, input_length=None)
 # heir args
 #keras.layers.recurrent.SimpleRNN(output_dim, init='glorot_uniform', inner_init='orthogonal', activation='tanh', W_regularizer=None, U_regularizer=None, b_regularizer=None, dropout_W=0.0, dropout_U=0.0)
-model.add(Dense(input_dim=nhid,output_dim=n_feat*nx*ny))
+
+model.add(Dense(input_dim=nhid,output_dim=n_feat*new_nx*new_ny))
 model.add(Activation("relu"))
-model.add(Reshape((n_feat,nx,ny)))
-model.add(Convolution2D(1,filter_size,filter_size,border_mode='same'))
+model.add(Reshape((n_feat,new_nx,new_ny)))
+model.add(Deconvolution2D(1,filter_size,filter_size,output_shape=(None,1,nx,ny),subsample=pool_size,border_mode='valid'))
 model.add(Activation("linear"))
 model.add(Flatten())
 

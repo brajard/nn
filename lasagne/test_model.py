@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import savemat
 import pickle
+from keras.utils.visualize_util import plot
 
 outdir = '../data/nn_rec1'
 modelname = 'rnn.json'
@@ -17,11 +18,15 @@ data =  'data.npz'
 histname = 'history.p'
 tosave = True
 tosavemat = True
+tosavemodel = True
 
 plt.close("all")
 
 model = model_from_json(open(os.path.join(outdir,modelname)).read())
 model.load_weights(os.path.join(outdir,weights))
+if tosavemodel:
+    plot(model, show_shapes = True, to_file=os.path.join(outdir,'model.png'))
+
 npzfile = np.load(os.path.join(outdir,data))
 Xapp = npzfile['Xapp']
 yapp = npzfile['yapp']

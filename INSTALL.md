@@ -16,4 +16,7 @@ Using Conda
 * `pip install keras`
 * `pip install sklearn`
 * `pip install h5py`
+* for visualization :
+** `pip install pydot-ng`
+** `conda install graphviz`
 * Test if it works : `./combo_test_uv.py`
