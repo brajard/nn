@@ -8,11 +8,13 @@ from keras.models import model_from_json
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import savemat
+import pickle
 
-outdir = '../data/nn_rec4'
+outdir = '../data/nn_rec1'
 modelname = 'rnn.json'
 weights = 'weights.h5'
 data =  'data.npz'
+histname = 'history.p'
 tosave = True
 tosavemat = True
 
@@ -52,6 +54,17 @@ for i in range(1,5):
     plt.title(figtitle[i-1])
     if tosave:
         plt.savefig(os.path.join(outdir,figtitle[i-1]+'.png'))
+
+plt.figure()
+hist = pickle.load(open(os.path.join(outdir,histname),'rb'))
+plt.plot(hist['epoch'],hist['history']['loss'],color='0.75',linewidth=2.0,label='Learning loss')
+plt.plot(hist['epoch'],hist['history']['val_loss'],color='black',linewidth=2.0,label='validation loss')
+plt.title('Learning')
+plt.ylabel('Loss')
+plt.xlabel('epoch')
+plt.legend()
+if tosave:
+    plt.savefig(os.path.join(outdir,'learning.png'))
 
 dmat={'Xapp':Xapp,'yapp':yapp,'ypred':ypred}
 if tosavemat:
