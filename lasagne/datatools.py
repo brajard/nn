@@ -5,7 +5,11 @@ import os
 import matplotlib.pyplot as plt
 import random
 from subprocess import call
-
+import pandas as pd
+import xarray as xr
+colindex = [str(i) for i in range(136)]
+colindex[134]='ubar'
+colindex[135]='vbar'
 
 def load_sequence(
     data,
@@ -23,7 +27,9 @@ def load_dataset(
     geofile = 'USABLE_PointbyPoint.mat',
     field = 'MATRICE', 
     geofield = 'USABLE_PointbyPoint1',
-    linnum = [134,135] #ubar, vbar
+    linnum = [134,135], #ubar, vbar
+    start = '20070101',
+    cols = colindex
     ):
     
     if not os.path.isfile(os.path.abspath(os.path.join(datadir,fname))):
@@ -31,17 +37,28 @@ def load_dataset(
 #        url = 'https://www.dropbox.com/sh/9rg6nrn8xhk5wjz/AACOB1QGXAFT4w9dnsujefsTa/MATRICE_MAREE_11_2015.mat'
         #call(["wget", "-P "+os.path.abspath(datadir), url],shell=True)
         os.system("wget " + "-P " + os.path.abspath(datadir) + " " + url)
+    
+    cols = np.array(cols)
     data = loadmat(os.path.join(datadir,fname))
     data = np.transpose(data[field][linnum,:])
     geo  = loadmat(os.path.join(datadir,geofile))
     geo = geo[geofield]
 
+
+    
     Nt = len(geo[0,0].ravel())
     Np = len(linnum)
+
+    dates = pd.date_range(start,dtype='datetime64[ns]',periods=Nt,freq='H')
+    xind,yind = range(geo.shape[0]), range(geo.shape[1]) #TODO ask anastase which is x, which is y
+
     X = np.zeros((Nt,Np)+geo.shape)
-    
+
     for (i,j),ind in np.ndenumerate(geo):
         X[:,:,i,j] = data[ind.ravel()-1,:]
+
+    dX = xr.DataArray(X,coords=[dates,cols[linnum],xind,yind],dims=['dates','parameters','xind','yind'])
+
     return X
 
 def plot_images(X,ind,titles=['Ubar','Vbar']):
@@ -130,3 +147,10 @@ def plot_scatter(yt,yr):
     print ("correlation=",corr[0,1])
     rmse = np.sqrt(np.mean((yt-yr)**2))
     print ("rmse=",rmse)
+
+def history2dict(history):
+    """Transform the history callback return by the 
+    fit method to a dictionnary with fields :
+    epoch, history, params"""
+    return {'history':history.history,'params':history.params,'epoch':history.epoch}
+    

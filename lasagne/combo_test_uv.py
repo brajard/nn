@@ -6,14 +6,17 @@ import datatools
 import os
 from importlib import reload
 reload(datatools)
-from datatools import load_dataset, plot_images, plot_compare, load_sequence
+from datatools import load_dataset, plot_images, plot_compare, load_sequence, history2dict
 from keras.models import Sequential  
 from keras.layers.core import Dense, Activation, Flatten, Reshape
 from keras.layers.recurrent import SimpleRNN, LSTM
+from keras.layers.pooling import MaxPooling2D
 #from keras.layers.extra import TimeDistributedFlatten,TimeDistributedConvolution2D
 from keras.layers.wrappers import TimeDistributed
 from keras.layers.convolutional import Convolution2D
 import theano
+import pandas as pd
+import pickle
 
 theano.config.optimizer = 'None'
 
@@ -82,14 +85,16 @@ yapp = yapp.reshape([yapp.shape[0],nx*ny])
 
 # Model Definition
 in_out_neurons = nx*ny
-n_feat = 4
+n_feat = 5
 filter_size=3
 nhid = 12
+pool_size = (2,2)
 
 model = Sequential()
 
 model.add(TimeDistributed(Convolution2D(n_feat,filter_size,filter_size,border_mode='same'),input_shape=(n_prev,npar,nx,ny)))
 model.add(Activation("linear"))
+model.add(TimeDistributed(MaxPooling2D(pool_size=pool_size, strides=None)))
 model.add(TimeDistributed(Flatten()))
 model.add(TimeDistributed(Dense(nhid)))
 model.add(Activation("relu"))
@@ -108,7 +113,7 @@ model.add(Flatten())
 
 model.compile(loss="mean_squared_error",optimizer="rmsprop")
 
-model.fit(Xapp,yapp,batch_size=256,nb_epoch=10,validation_split=0.05)
+history = model.fit(Xapp,yapp,batch_size=256,nb_epoch=50,validation_split=0.05)
 y_predict = model.predict(Xapp)
 
 #plot_compare(yapp.reshape([-1,7,7]),y_predict.reshape([-1,7,7]),[50,1000,5500,7000,11000])
@@ -122,7 +127,7 @@ data =  'data.npz'
 json_string = model.to_json()
 
 os.makedirs(outdir,exist_ok=True)
-
+pickle.dump(history2dict(history), open(os.path.join(outdir,'history.p'), "wb" ))
 open(os.path.join(outdir,modelname),'w').write(json_string)
 model.save_weights(os.path.join(outdir,weights),overwrite=True)
 np.savez(os.path.join(outdir,data),Xapp=Xapp,yapp=yapp)
