@@ -7,10 +7,39 @@ import random
 from subprocess import call
 import pandas as pd
 import xarray as xr
+from sklearn import preprocessing
+
 colindex = [str(i) for i in range(136)]
 colindex[134]='ubar'
 colindex[135]='vbar'
 
+def normalize (X,scaler=preprocessing.StandardScaler,fit=True,parname = 'parameters'):
+    z = [c for c in X.coords.dims if c != parname]
+    stacked = X.stack(z=z).T
+    if fit:
+        scaler.fit(stacked)
+    stacked.values = scaler.transform(stacked.values)
+    L = X.coords.dims
+    Xn = stacked.unstack('z')
+    if len(L)==4:
+         Xn = Xn.transpose(L[0],L[1],L[2],L[3])
+    if len(L)==5:
+         Xn = Xn.transpose(L[0],L[1],L[2],L[3],L[4])
+    return(Xn,scaler)
+
+def denormalize (X,scaler=preprocessing.StandardScaler,parname = 'parameters'):
+    z = [c for c in X.coords.dims if c != parname]
+    stacked = X.stack(z=z).T
+    stacked.values = scaler.inverse_transform(stacked.values)
+    L = X.coords.dims
+    Xd = stacked.unstack('z')
+    if len(L)==4:
+         Xd = Xd.transpose(L[0],L[1],L[2],L[3])
+    if len(L)==5:
+         XD = Xd.transpose(L[0],L[1],L[2],L[3],L[4])
+    return(Xd,scaler)
+
+    
 def load_sequence(
     data,
     n_prev = 3,
@@ -29,7 +58,8 @@ def load_dataset(
     geofield = 'USABLE_PointbyPoint1',
     linnum = [134,135], #ubar, vbar
     start = '20070101',
-    cols = colindex
+    cols = colindex,
+    outputformat = 'np'
     ):
     
     if not os.path.isfile(os.path.abspath(os.path.join(datadir,fname))):
@@ -58,8 +88,10 @@ def load_dataset(
         X[:,:,i,j] = data[ind.ravel()-1,:]
 
     dX = xr.DataArray(X,coords=[dates,cols[linnum],xind,yind],dims=['dates','parameters','xind','yind'])
-
-    return X
+    if outputformat == 'np':
+        return X
+    else:
+        return dX
 
 def plot_images(X,ind,titles=['Ubar','Vbar']):
     for j in range(len(ind)):
@@ -153,4 +185,75 @@ def history2dict(history):
     fit method to a dictionnary with fields :
     epoch, history, params"""
     return {'history':history.history,'params':history.params,'epoch':history.epoch}
+    
+
+def prepare_data(smNum=[77],uvNum=[134,135],nseq = 6, epsi = 1e-3, first_time = 8*30*24, lognorm = True,itest=[]):
+    """ prepare data for learning, and test function
+    
+    Parameters:
+    -----------
+    smNum : list[int]
+            index of columns in dataset for suspended matter values (to be sum in the learning dataset
+    uvNum : list[int]
+            index of columns in dataset for other parameters
+    nseq : int
+           size of the sequence in input
+    epsi : float
+           minimum value for sm parameter
+    first_time : int
+                 index of the first time step to considere in the learning
+    lognorm : bool
+              True if sm parameter should be log10 normalized
+    itest : list[int]
+            index of rows in dataset for test
+    
+    Returns :
+    ---------
+    Xapp,yapp : tuple(np.array,np.array)
+                learning dataset
+    Xval,yval : tuple(np.array,np.array)
+                  test dataset (can be empty)
+    scaler : scaler from sklearn
+    """ 
+    linnum = smNum + uvNum
+    Xtmp = load_dataset(linnum=linnum,outputformat='xr')
+    nt = Xtmp['dates'].size
+    X2   = Xtmp.isel(dates=slice(first_time,None))
+    Xtsm = X2.isel(parameters=slice(len(smNum)))
+  #  Xtsm = np.sum(Xtmp[first_time:,:len(smNum),:,:],axis=1,keepdims=True)
+    Xtsm = Xtsm.sum(dim = 'parameters')
+    Xtsm.values[Xtsm.values<epsi]=epsi
+    if lognorm:
+        Xtsm.values = np.log10(Xtsm.values)
+
+    Xuv = X2.isel(parameters=slice(len(smNum),None))
+    
+    #definition new DataArray
+    coords = {c:Xuv.coords.get(c).values for c in Xuv.coords.dims}
+    coords['parameters']=np.insert(coords['parameters'],0,'tsm')
+    nt,npar,nx,ny = Xuv.shape
+    X = np.concatenate((Xtsm.values.reshape((nt,1,nx,ny)),Xuv.values),axis=1)
+    X = xr.DataArray(X,coords=coords,dims=Xuv.coords.dims)
+
+#    X = np.concatenate((Xtsm,Xuv),axis=1)
+    nt,npar,nx,ny = X.shape
+    scaler = preprocessing.StandardScaler()
+    Xn,scaler = normalize(X,scaler)
+    
+    XX,y = load_sequence(Xn.values,n_prev=nseq)
+    y = y[:,0,:,:]
+    n = XX.shape[0]
+    ival = list(range(0,21*24)) + list(range(n-21*24,n))
+    ilearn = [i for i in range(n) if i not in ival]
+    
+    XX = XX.reshape([XX.shape[0],nseq,npar,nx,ny])
+    y = y.reshape([y.shape[0],nx*ny])
+
+    Xapp = XX[ilearn]
+    yapp = y[ilearn]
+    Xval = XX[ival]
+    yval = y[ival]
+
+
+    return Xapp,yapp,Xval,yval,scaler
     
