@@ -374,9 +374,9 @@ def make_train(
     tosave = {'history','model','data','scaler'},
     scaler=None,
     batch_size=256):
-    history = model.fit(data.Xapp,data.yapp,batch_size=256,nb_epoch=50,validation_split=0.05):
+ 
     
-    history = model.fit(data.Xapp,data.yapp,batch_size=256,nb_epoch=50,validation_split=0.05)
+    history = model.fit(data.Xapp,data.yapp,batch_size=batch_size,nb_epoch=nb_epoch,validation_split=0.05)
     modelname = 'rnn.json'
     weights = 'weights.h5'
     datatrain =  'datatrain.npz'

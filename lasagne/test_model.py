@@ -12,7 +12,7 @@ from scipy.io import savemat
 import pickle
 from keras.utils.visualize_util import plot
 
-outdir = '../data/nn_rec5'
+outdir = '../data/nn_rec1'
 modelname = 'rnn.json'
 weights = 'weights.h5'
 data =  'dataval.npz'
