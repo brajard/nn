@@ -26,9 +26,12 @@ import matplotlib.pyplot as plt
 
 plt.close("all")
 
-Xapp,yapp,Xval,yval,scaler = prepare_data()
+datadir = '/net/argos/data/parvati/aaclod/home2/aaclod/MAREES/python_nn/nn'
+fname = 'MATRICE_01_2017.mat'
+geofile = 'USABLE_PointbyPoint_01_2017.mat'
+data,scaler = prepare_data(datadir=datadir,fname=fname,geofile=geofile,lognorm=False,epsi=0.0)
 
-nt,n_prev,npar,nx,ny = Xapp.shape
+nt,n_prev,npar,nx,ny = data.Xapp.shape
 
 # Model Definition
 in_out_neurons = nx*ny
@@ -64,21 +67,22 @@ model.add(Flatten())
 
 model.compile(loss="mean_squared_error",optimizer="rmsprop")
 
-history = model.fit(Xapp,yapp,batch_size=256,nb_epoch=50,validation_split=0.05)
-y_predict = model.predict(Xapp)
+history = model.fit(data.Xapp,data.yapp,batch_size=256,nb_epoch=50,validation_split=0.05)
+y_predict = model.predict(data.Xapp)
 
 #plot_compare(yapp.reshape([-1,7,7]),y_predict.reshape([-1,7,7]),[50,1000,5500,7000,11000])
 
 # Save nn
-outdir = '../data/nn_rec2'
+outdir = '../data/nn_rec3'
 modelname = 'rnn.json'
 weights = 'weights.h5'
-data =  'data.npz'
-
+datatrain =  'datatrain.npz'
+dataval = 'dataval.npz'
 json_string = model.to_json()
 
 os.makedirs(outdir,exist_ok=True)
 pickle.dump(history2dict(history), open(os.path.join(outdir,'history.p'), "wb" ))
 open(os.path.join(outdir,modelname),'w').write(json_string)
 model.save_weights(os.path.join(outdir,weights),overwrite=True)
-np.savez(os.path.join(outdir,data),Xapp=Xapp,yapp=yapp)
+np.savez(os.path.join(outdir,datatrain),Xapp=data.Xapp,yapp=data.yapp)
+np.savez(os.path.join(outdir,dataval),Xval=data.Xval,yval=data.yval)
