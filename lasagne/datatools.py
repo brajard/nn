@@ -322,7 +322,6 @@ def prepare_data(
     
 
 def define_model_all(shape,
-                     nb_epoch = 50,
                      n_feat=5,
                      filter_size=3,
                      nhid1=12,
@@ -331,6 +330,8 @@ def define_model_all(shape,
     
     nt,n_prev,npar,nx,ny = shape                 
     
+    in_out_neurons = nx*ny
+
     new_nx = nx//pool_size[0]
     new_ny = ny//pool_size[1]
     
@@ -340,11 +341,11 @@ def define_model_all(shape,
     model.add(Activation("linear"))
     model.add(TimeDistributed(MaxPooling2D(pool_size=pool_size, strides=None)))
     model.add(TimeDistributed(Flatten()))
-    model.add(TimeDistributed(Dense(nhid)))
+    model.add(TimeDistributed(Dense(nhid1)))
     model.add(Activation("relu"))
-    model.add(LSTM(output_dim=nhid,return_sequences=False))
+    model.add(LSTM(output_dim=nhid2,return_sequences=False))
     
-    model.add(Dense(input_dim=nhid,output_dim=n_feat*new_nx*new_ny))
+    model.add(Dense(input_dim=nhid2,output_dim=n_feat*new_nx*new_ny))
     model.add(Activation("relu"))
     model.add(Reshape((n_feat,new_nx,new_ny)))
     model.add(Deconvolution2D(1,filter_size,filter_size,output_shape=(None,1,nx,ny),subsample=pool_size,border_mode='valid'))
@@ -353,3 +354,42 @@ def define_model_all(shape,
 
     model.compile(loss="mean_squared_error",optimizer="rmsprop")
     return model
+
+def save_data(
+    data,
+    outdir,
+    datatrain = 'datatrain.npz',
+    dataval = 'dataval.npz'):
+
+    os.makedirs(outdir,exist_ok=True)
+    np.savez(os.path.join(outdir,datatrain),Xapp=data.Xapp,yapp=data.yapp)
+    np.savez(os.path.join(outdir,dataval),Xval=data.Xval,yval=data.yval)
+
+
+def make_train(
+    data,
+    model,
+    outdir,
+    nb_epoch=50,
+    tosave = {'history','model','data','scaler'},
+    scaler=None,
+    batch_size=256):
+    history = model.fit(data.Xapp,data.yapp,batch_size=256,nb_epoch=50,validation_split=0.05):
+    
+    history = model.fit(data.Xapp,data.yapp,batch_size=256,nb_epoch=50,validation_split=0.05)
+    modelname = 'rnn.json'
+    weights = 'weights.h5'
+    datatrain =  'datatrain.npz'
+    dataval = 'dataval.npz'
+    os.makedirs(outdir,exist_ok=True)
+    if 'history' in tosave:
+        pickle.dump(history2dict(history), open(os.path.join(outdir,'history.p'), "wb" ))
+    if 'model' in tosave:
+        json_string = model.to_json()
+        open(os.path.join(outdir,modelname),'w').write(json_string)
+        model.save_weights(os.path.join(outdir,weights),overwrite=True)
+    if 'scaler' in tosave and scaler:
+        pickle.dump(scaler,open(os.path.join(outdir,'scaler.p'),"wb"))
+    if 'data' in tosave:
+        save_data(data,outdir)
+        
