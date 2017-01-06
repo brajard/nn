@@ -8,6 +8,15 @@ from subprocess import call
 import pandas as pd
 import xarray as xr
 from sklearn import preprocessing
+from keras.models import Sequential  
+from keras.layers.core import Dense, Activation, Flatten, Reshape
+from keras.layers.recurrent import SimpleRNN, LSTM
+from keras.layers.pooling import MaxPooling2D
+#from keras.layers.extra import TimeDistributedFlatten,TimeDistributedConvolution2D
+from keras.layers.wrappers import TimeDistributed
+from keras.layers.convolutional import Deconvolution2D,Convolution2D
+import theano
+import pickle
 
 colindex = [str(i) for i in range(136)]
 colindex[134]='ubar'
@@ -45,10 +54,35 @@ def load_sequence(
     n_prev = 3,
     hor=1):
     X,Y = [],[]
-    for i in range(len(data)-n_prev-hor+1):
-        X.append(data[i:i+n_prev])
-        Y.append(data[i+n_prev+hor-1])
-    return np.array(X),np.array(Y)
+    if 'numpy' in str(type(data)):
+        vdata = data
+    else: #xarray
+        vdata = data.values
+        seq = np.arange(n_prev)
+
+    for i in range(len(vdata)-n_prev-hor+1):
+        X.append(vdata[i:i+n_prev])
+        Y.append(vdata[i+n_prev+hor-1])
+
+    if 'numpy' in str(type(data)):
+        return np.array(X),np.array(Y)
+    else: #xarray
+        #dataarray for y
+        coords = {c:data.coords.get(c).values for c in data.coords.dims}
+        if not data.coords.dims[0].startswith('dates'):
+            print('WARNING : The first dimension is ',data.coords.dims[0],' and not "dates"')
+        coords[data.coords.dims[0]]=coords[data.coords.dims[0]][n_prev:]
+        #how to define the date ?
+        #The date of a sequence [t-n,t-n+1,..t-2,t-2] is t
+        #it correponds to the date of the target (if hor=1)
+        dims=list(data.coords.dims)
+        Yret = xr.DataArray(np.array(Y),coords=coords,dims=dims)
+
+        #dataarray for X
+        coords['seq']=seq
+        dims.insert(1,'seq')
+        Xret = xr.DataArray(np.array(X),coords=coords,dims=dims)
+        return Xret,Yret
 
 def load_dataset(
     datadir = '../data',
@@ -187,7 +221,18 @@ def history2dict(history):
     return {'history':history.history,'params':history.params,'epoch':history.epoch}
     
 
-def prepare_data(smNum=[77],uvNum=[134,135],nseq = 6, epsi = 1e-3, first_time = 8*30*24, lognorm = True,itest=[]):
+def prepare_data(
+    smNum=[77],
+    uvNum=[134,135],
+    nseq = 6, 
+    epsi = 1e-3, 
+    first_time = 8*30*24, 
+    lognorm = True,
+    name='', 
+    datadir = '../data', 
+    fname = 'MATRICE_MAREE_06_2016.mat',
+    geofile = 'USABLE_PointbyPoint.mat'
+    ):
     """ prepare data for learning, and test function
     
     Parameters:
@@ -204,28 +249,34 @@ def prepare_data(smNum=[77],uvNum=[134,135],nseq = 6, epsi = 1e-3, first_time = 
                  index of the first time step to considere in the learning
     lognorm : bool
               True if sm parameter should be log10 normalized
-    itest : list[int]
-            index of rows in dataset for test
+    name : str (default : '')
+            if not empty, save dataset in the netcdf file designed by name
+            NOTE : need to have netcdf library install (does not work)
     
     Returns :
     ---------
-    Xapp,yapp : tuple(np.array,np.array)
-                learning dataset
-    Xval,yval : tuple(np.array,np.array)
-                  test dataset (can be empty)
+    data : Dataset cotaining
+           Xapp,yapp : normalized training dataset
+           Xval,yval : normalized validation dateset
     scaler : scaler from sklearn
     """ 
     linnum = smNum + uvNum
-    Xtmp = load_dataset(linnum=linnum,outputformat='xr')
+    Xtmp = load_dataset(linnum=linnum,
+                        datadir=datadir,
+                        fname=fname,
+                        geofile=geofile,
+                        outputformat='xr')
     nt = Xtmp['dates'].size
     X2   = Xtmp.isel(dates=slice(first_time,None))
     Xtsm = X2.isel(parameters=slice(len(smNum)))
   #  Xtsm = np.sum(Xtmp[first_time:,:len(smNum),:,:],axis=1,keepdims=True)
     Xtsm = Xtsm.sum(dim = 'parameters')
-    Xtsm.values[Xtsm.values<epsi]=epsi
+   
     if lognorm:
-        Xtsm.values = np.log10(Xtsm.values)
-
+        Xtsm.values = np.log10(Xtsm.values+epsi)
+    else:
+        Xtsm.values[Xtsm.values<epsi]=epsi
+        
     Xuv = X2.isel(parameters=slice(len(smNum),None))
     
     #definition new DataArray
@@ -240,20 +291,65 @@ def prepare_data(smNum=[77],uvNum=[134,135],nseq = 6, epsi = 1e-3, first_time = 
     scaler = preprocessing.StandardScaler()
     Xn,scaler = normalize(X,scaler)
     
-    XX,y = load_sequence(Xn.values,n_prev=nseq)
-    y = y[:,0,:,:]
-    n = XX.shape[0]
+    XX,y = load_sequence(Xn,n_prev=nseq)
+    y = y.sel(parameters='tsm')
+    n = XX.shape[0] #number of samples (dates)
+    
+   
     ival = list(range(0,21*24)) + list(range(n-21*24,n))
     ilearn = [i for i in range(n) if i not in ival]
     
-    XX = XX.reshape([XX.shape[0],nseq,npar,nx,ny])
-    y = y.reshape([y.shape[0],nx*ny])
+ #   XX = XX.reshape([XX.shape[0],nseq,npar,nx,ny])
+    y = y.stack(pixind=('xind','yind'))
 
     Xapp = XX[ilearn]
     yapp = y[ilearn]
     Xval = XX[ival]
     yval = y[ival]
-
-
-    return Xapp,yapp,Xval,yval,scaler
     
+    #Creating the dataset
+    Xapp.name = 'Xapp'
+    yapp.name = 'yapp'
+    Xval.name = 'Xval'
+    Xval=Xval.rename({'dates':'datesVal'})
+    yval.name = 'yval'
+    yval=yval.rename({'dates':'datesVal'})
+    
+    
+    data = xr.merge([Xapp,yapp,Xval,yval])
+
+    return data,scaler
+    
+
+def define_model_all(shape,
+                     nb_epoch = 50,
+                     n_feat=5,
+                     filter_size=3,
+                     nhid1=12,
+                     nhid2=12,
+                     pool_size=(2,2)):
+    
+    nt,n_prev,npar,nx,ny = shape                 
+    
+    new_nx = nx//pool_size[0]
+    new_ny = ny//pool_size[1]
+    
+    model = Sequential()
+
+    model.add(TimeDistributed(Convolution2D(n_feat,filter_size,filter_size,border_mode='same'),input_shape=(n_prev,npar,nx,ny)))
+    model.add(Activation("linear"))
+    model.add(TimeDistributed(MaxPooling2D(pool_size=pool_size, strides=None)))
+    model.add(TimeDistributed(Flatten()))
+    model.add(TimeDistributed(Dense(nhid)))
+    model.add(Activation("relu"))
+    model.add(LSTM(output_dim=nhid,return_sequences=False))
+    
+    model.add(Dense(input_dim=nhid,output_dim=n_feat*new_nx*new_ny))
+    model.add(Activation("relu"))
+    model.add(Reshape((n_feat,new_nx,new_ny)))
+    model.add(Deconvolution2D(1,filter_size,filter_size,output_shape=(None,1,nx,ny),subsample=pool_size,border_mode='valid'))
+    model.add(Activation("linear"))
+    model.add(Flatten())
+
+    model.compile(loss="mean_squared_error",optimizer="rmsprop")
+    return model

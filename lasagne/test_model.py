@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from __future__ import print_function
 import os
 from importlib import reload
@@ -11,10 +12,10 @@ from scipy.io import savemat
 import pickle
 from keras.utils.visualize_util import plot
 
-outdir = '../data/nn_rec1'
+outdir = '../data/nn_rec3'
 modelname = 'rnn.json'
 weights = 'weights.h5'
-data =  'data.npz'
+data =  'dataval.npz'
 histname = 'history.p'
 tosave = True
 tosavemat = True
@@ -28,8 +29,8 @@ if tosavemodel:
     plot(model, show_shapes = True, to_file=os.path.join(outdir,'model.png'))
 
 npzfile = np.load(os.path.join(outdir,data))
-Xapp = npzfile['Xapp']
-yapp = npzfile['yapp']
+Xapp = npzfile['Xval']
+yapp = npzfile['yval']
 
 start = -24*30
 
