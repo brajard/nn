@@ -17,6 +17,7 @@ from keras.layers.wrappers import TimeDistributed
 from keras.layers.convolutional import Deconvolution2D,Convolution2D
 import theano
 import pickle
+from keras.optimizers import rmsprop
 
 colindex = [str(i) for i in range(136)]
 colindex[134]='ubar'
@@ -326,7 +327,8 @@ def define_model_all(shape,
                      filter_size=3,
                      nhid1=12,
                      nhid2=12,
-                     pool_size=(2,2)):
+                     pool_size=(2,2),
+                     lr=0.001):
     
     nt,n_prev,npar,nx,ny = shape                 
     
@@ -351,8 +353,8 @@ def define_model_all(shape,
     model.add(Deconvolution2D(1,filter_size,filter_size,output_shape=(None,1,nx,ny),subsample=pool_size,border_mode='valid'))
     model.add(Activation("linear"))
     model.add(Flatten())
-
-    model.compile(loss="mean_squared_error",optimizer="rmsprop")
+    optimizer = rmsprop(lr=lr)
+    model.compile(loss="mean_squared_error",optimizer=optimizer)
     return model
 
 def save_data(
