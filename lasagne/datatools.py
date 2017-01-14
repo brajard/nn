@@ -412,7 +412,7 @@ def define_model_all(shape,
     
     model = Sequential()
 
-    model.add(TimeDistributed(Convolution2D(n_feat,filter_size_in,filter_size_in,border_mode='same'),input_shape=(n_prev,npar,nx,ny)))
+    model.add(TimeDistributed(Convolution2D(n_feat_in,n_feat_out,filter_size_in,filter_size_in,border_mode='same'),input_shape=(n_prev,npar,nx,ny)))
     model.add(Activation("linear"))
     model.add(TimeDistributed(MaxPooling2D(pool_size=pool_size, strides=None)))
     model.add(TimeDistributed(Flatten()))
