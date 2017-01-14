@@ -32,14 +32,16 @@ class kerasnn (BaseEstimator, RegressorMixin):
     y_ : array, shape = [n_samples]
     The labels passed during :meth:`fit`"""
 
-    def __init__(self,shapef_=None,n_feat_=5,filter_size_=3,nhid1_=12,
+    def __init__(self,shapef_=None,n_feat_in_=5,filter_size_in_=3,n_feat_out_=5,filter_size_out_=3,nhid1_=12,
                  nhid2_=12,pool_size_=(2,2),lr_=0.001,
-                 batch_size_=256,nb_epoch_=50,validation_split_=0.05,init_=0):
+                 batch_size_=256,nb_epoch_=50,validation_split_=0.05,init_=0,network_type_='all'):
         if not shapef_:
             raise ValueError('shapef_ argument not set')
         self.shapef_ = shapef_
-        self.n_feat_ = n_feat_
-        self.filter_size_ = filter_size_
+        self.n_feat_in_ = n_feat_in_
+        self.filter_size_in_ = filter_size_in_
+        self.n_feat_out_ = n_feat_out_
+        self.filter_size_out_ = filter_size_out_
         self.nhid1_ = nhid1_
         self.nhid2_ = nhid2_
         self.pool_size_ = pool_size_
@@ -48,23 +50,52 @@ class kerasnn (BaseEstimator, RegressorMixin):
         self.validation_split_ = validation_split_
         self.init_=init_
         self.lr_=lr_
-        self.paramset_ = {'shapef_','n_feat_','filter_size_','nhid1_','nhid2_','init_',
-                          'pool_size_','batch_size_','nb_epoch_','validation_split_','lr_'}
+        self.network_type_=network_type_
+        self.paramset_ = {'shapef_','n_feat_in_','filter_size_in_','n_feat_out_','filter_size_out_','nhid1_','nhid2_','init_',
+                          'pool_size_','batch_size_','nb_epoch_','validation_split_','lr_','network_type_'}
 
     def reshape(self,X):
-        nfeature = reduce(mul,self.shapef_)
-        assert(nfeature==X.shape[1]),'wrong size of X'
-        self.shape_ = tuple([X.shape[0]])+tuple(self.shapef_) 
-        self.XX_ = X.reshape(self.shape_)
+        if self.network_type_ == 'all' or self.network_type_ == 'lstm'
+            nfeature = reduce(mul,self.shapef_)
+            assert(nfeature==X.shape[1]),'wrong size of X'
+            self.shape_ = tuple([X.shape[0]])+tuple(self.shapef_) 
+            self.XX_ = X.reshape(self.shape_)
+        elif self.network_type_ == 'dense' or self.network_type_ == 'conv'
+            nfeature = reduce(mul,self.shapef_)
+            assert(nfeature==X.shape[1]),'wrong size of X'
+            self.shape = tuple([X.shape[0]])+tuple(self.shapef_[0]*self.shapef[1])+tuple(self.shapef_[2:])           
+            self.XX_ = X.reshape(self.shape_)
+        else
+            raise ValueError('not a valid model type')
+        
+        
 
     def fit(self,X,y):
         X, y = check_X_y(X,y,multi_output=True)
         self.reshape(X) #compute self._XX
         self.y_ = y
-        self.nn_ = define_model_all(shape = self.shape_,\
+        if self.network_type_ == 'all'
+            self.nn_ = define_model_all(shape = self.shape_,\
                                     n_feat=self.n_feat_, filter_size= self.filter_size_,\
                                     nhid1=self.nhid1_, nhid2 = self.nhid2_,\
                                     pool_size = self.pool_size_,lr=self.lr_)
+        elif self.network_type_ == 'lstm'
+            self.nn_ = define_model_lstm(shape = self.shape_,\
+                                    n_feat=self.n_feat_, filter_size= self.filter_size_,\
+                                    nhid1=self.nhid1_, nhid2 = self.nhid2_,\
+                                    pool_size = self.pool_size_,lr=self.lr_)
+        elif self.network_type_ == 'dense'
+            self.nn_ = define_model_Dense(shape = self.shape_,\
+                                    n_feat=self.n_feat_, filter_size= self.filter_size_,\
+                                    nhid1=self.nhid1_, nhid2 = self.nhid2_,\
+                                    pool_size = self.pool_size_,lr=self.lr_)
+        elif self.network_type_ == 'conv'
+            self.nn_ = define_model_Conv(shape = self.shape_,\
+                                    n_feat=self.n_feat_, filter_size= self.filter_size_,\
+                                    nhid1=self.nhid1_, nhid2 = self.nhid2_,\
+                                    pool_size = self.pool_size_,lr=self.lr_)
+        else
+            raise ValueError('not a valid model type')
 
   
         self.history_ = self.nn_.fit(self.XX_,self.y_,batch_size=self.batch_size_,\
