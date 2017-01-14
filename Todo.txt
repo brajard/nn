@@ -1,0 +1,30 @@
+TODOLIST
+
+___________
+
+
+1) Presentation ->  ongoing
+    i) Slides structure:
+        1)Titre
+        2)intro: geosciences et données: problematique
+        3)intro: avancées deep learning
+        4)probléme specifique SPIM
+        5) structure LSTM
+        6) structure CNN
+        7)données
+        8)Apprentissage
+        9)video LSTM
+        10)CNN
+        11)LSTM +CNN
+        12)Conclusion
+    ii) Videos
+    
+2) Changer fonction deepnn pour prendre en compte les _in _out
+
+3) Changer fonction deepnn pour prendre en compte les differents modeles
+    i) dans reshape
+    ii) dans fit
+    
+4) Tester et tunner les autres models models
+
+5) Tester avec un plus grande image?
