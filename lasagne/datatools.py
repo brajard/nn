@@ -331,7 +331,6 @@ def define_model_all(shape,
                      lr=0.001):
     
     nt,n_prev,npar,nx,ny = shape                 
-    
     in_out_neurons = nx*ny
 
     new_nx = nx//pool_size[0]
@@ -395,3 +394,6 @@ def make_train(
     if 'data' in tosave:
         save_data(data,outdir)
         
+
+def nweights(nn):
+    return sum([w.size for w in nn.get_weights()])
