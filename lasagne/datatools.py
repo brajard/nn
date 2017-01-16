@@ -321,10 +321,83 @@ def prepare_data(
 
     return data,scaler
     
+def define_model_Conv(shape,
+                     n_feat_in=5,
+                     n_feat_out=3,
+                     filter_size_in=3,
+                     filter_size_out=3, 
+                     nhid=25,
+                     pool_size=(2,2),
+                     lr=0.01):
+    
+    nt,n_prev,npar,nx,ny = shape                 
+    
+    new_nx = nx//pool_size[0]
+    new_ny = ny//pool_size[1]
+    
+    model = Sequential()
+
+    model.add(Convolution2D(n_feat_in,filter_size_in,filter_size_in,border_mode='same'),input_shape=(n_prev,npar,nx,ny))
+    model.add(Activation("linear"))
+    model.add(MaxPooling2D(pool_size=pool_size, strides=None))
+    model.add(Flatten())
+    model.add(Dense(nhid))
+    model.add(Activation("relu"))
+    model.add(Dense(input_dim=nhid,output_dim=n_feat_out*new_nx*new_ny))
+    model.add(Activation("relu"))
+    model.add(Reshape((n_feat_out,new_nx,new_ny)))
+    model.add(Deconvolution2D(1,filter_size_out,filter_size_out,output_shape=(None,1,nx,ny),subsample=pool_size,border_mode='valid'))
+    model.add(Activation("linear"))
+    model.add(Flatten())
+    optimizer = rmsprop(lr=lr)
+    model.compile(loss="mean_squared_error",optimizer=optimizer)
+    return model
+
+def define_model_Dense(shape,
+                       nhid1=100,
+                       nhid2=20,
+                       lr=0.01):
+    
+    nt,n_prev,npar,nx,ny = shape                 
+        
+    model = Sequential()
+    model.add(Flatten())
+    model.add(Dense(nhid1))
+    model.add(Activation("relu"))
+    model.add(Dense(input_dim=nhid1,output_dim=nhid2))
+    model.add(Activation("relu"))
+    model.add(Dense(input_dim=nhid1,output_dim=nx*ny))
+    model.add(Activation("relu"))
+    optimizer = rmsprop(lr=lr)
+    model.compile(loss="mean_squared_error",optimizer=optimizer)
+    return model
+
+
+
+def define_model_lstm(shape,
+                     nhid1=12,
+                     nhid2=12,
+                     lr=0.01):
+    
+    nt,n_prev,npar,nx,ny = shape    
+    
+    model = Sequential()
+    model.add(TimeDistributed(Flatten(input_shape=(n_prev,npar,nx,ny))))
+    model.add(TimeDistributed(Dense(nhid1)))
+    model.add(Activation("relu"))
+    model.add(LSTM(output_dim=nhid2,return_sequences=False))
+    model.add(Dense(input_dim=nhid2,output_dim=nx*ny))
+    model.add(Activation("relu"))
+    optimizer = rmsprop(lr=lr)
+    model.compile(loss="mean_squared_error",optimizer=optimizer)
+    
+    return model
 
 def define_model_all(shape,
-                     n_feat=5,
-                     filter_size=3,
+                     n_feat_in=5,
+                     n_feat_out=3,
+                     filter_size_in=3,
+                     filter_size_out=3,
                      nhid1=12,
                      nhid2=12,
                      pool_size=(2,2),
@@ -338,24 +411,24 @@ def define_model_all(shape,
     
     model = Sequential()
 
-    model.add(TimeDistributed(Convolution2D(n_feat,filter_size,filter_size,border_mode='same'),input_shape=(n_prev,npar,nx,ny)))
+    model.add(TimeDistributed(Convolution2D(n_feat,filter_size_in,filter_size_in,border_mode='same'),input_shape=(n_prev,npar,nx,ny)))
     model.add(Activation("linear"))
     model.add(TimeDistributed(MaxPooling2D(pool_size=pool_size, strides=None)))
     model.add(TimeDistributed(Flatten()))
     model.add(TimeDistributed(Dense(nhid1)))
     model.add(Activation("relu"))
     model.add(LSTM(output_dim=nhid2,return_sequences=False))
-    
     model.add(Dense(input_dim=nhid2,output_dim=n_feat*new_nx*new_ny))
     model.add(Activation("relu"))
     model.add(Reshape((n_feat,new_nx,new_ny)))
-    model.add(Deconvolution2D(1,filter_size,filter_size,output_shape=(None,1,nx,ny),subsample=pool_size,border_mode='valid'))
+    model.add(Deconvolution2D(1,filter_size_out,filter_size_out,output_shape=(None,1,nx,ny),subsample=pool_size,border_mode='valid'))
     model.add(Activation("linear"))
     model.add(Flatten())
     optimizer = rmsprop(lr=lr)
     model.compile(loss="mean_squared_error",optimizer=optimizer)
     return model
 
+    
 def save_data(
     data,
     outdir,
