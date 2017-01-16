@@ -330,14 +330,14 @@ def define_model_Conv(shape,
                      pool_size=(2,2),
                      lr=0.01):
     
-    nt,n_prev,npar,nx,ny = shape                 
+    nt,npar,nx,ny = shape                 
     
     new_nx = nx//pool_size[0]
     new_ny = ny//pool_size[1]
     
     model = Sequential()
 
-    model.add(Convolution2D(n_feat_in,filter_size_in,filter_size_in,border_mode='same'),input_shape=(n_prev,npar,nx,ny))
+    model.add(Convolution2D(n_feat_in,filter_size_in,filter_size_in,border_mode='same',input_shape=(npar,nx,ny)))
     model.add(Activation("linear"))
     model.add(MaxPooling2D(pool_size=pool_size, strides=None))
     model.add(Flatten())
@@ -358,10 +358,10 @@ def define_model_Dense(shape,
                        nhid2=20,
                        lr=0.01):
     
-    nt,n_prev,npar,nx,ny = shape                 
+    nt,npar,nx,ny = shape                 
         
     model = Sequential()
-    model.add(Flatten())
+    model.add(Flatten(input_shape=(npar,nx,ny)))
     model.add(Dense(nhid1))
     model.add(Activation("relu"))
     model.add(Dense(input_dim=nhid1,output_dim=nhid2))
@@ -382,7 +382,7 @@ def define_model_lstm(shape,
     nt,n_prev,npar,nx,ny = shape    
     
     model = Sequential()
-    model.add(TimeDistributed(Flatten(input_shape=(n_prev,npar,nx,ny))))
+    model.add(TimeDistributed(Flatten(),input_shape=(n_prev,npar,nx,ny)))
     model.add(TimeDistributed(Dense(nhid1)))
     model.add(Activation("relu"))
     model.add(LSTM(output_dim=nhid2,return_sequences=False))
@@ -411,16 +411,16 @@ def define_model_all(shape,
     
     model = Sequential()
 
-    model.add(TimeDistributed(Convolution2D(n_feat,filter_size_in,filter_size_in,border_mode='same'),input_shape=(n_prev,npar,nx,ny)))
+    model.add(TimeDistributed(Convolution2D(n_feat_in,filter_size_in,filter_size_in,border_mode='same'),input_shape=(n_prev,npar,nx,ny)))
     model.add(Activation("linear"))
     model.add(TimeDistributed(MaxPooling2D(pool_size=pool_size, strides=None)))
     model.add(TimeDistributed(Flatten()))
     model.add(TimeDistributed(Dense(nhid1)))
     model.add(Activation("relu"))
     model.add(LSTM(output_dim=nhid2,return_sequences=False))
-    model.add(Dense(input_dim=nhid2,output_dim=n_feat*new_nx*new_ny))
+    model.add(Dense(input_dim=nhid2,output_dim=n_feat_out*new_nx*new_ny))
     model.add(Activation("relu"))
-    model.add(Reshape((n_feat,new_nx,new_ny)))
+    model.add(Reshape((n_feat_out,new_nx,new_ny)))
     model.add(Deconvolution2D(1,filter_size_out,filter_size_out,output_shape=(None,1,nx,ny),subsample=pool_size,border_mode='valid'))
     model.add(Activation("linear"))
     model.add(Flatten())
