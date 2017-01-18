@@ -401,7 +401,7 @@ def define_model_all(shape,
                      nhid1=12,
                      nhid2=12,
                      pool_size=(2,2),
-                     lr=0.001):
+                     lr=0.01):
     
     nt,n_prev,npar,nx,ny = shape                 
     in_out_neurons = nx*ny
@@ -442,15 +442,24 @@ def save_data(
 
 def make_train(
     data,
-    model,
+    cmodel,
     outdir,
     nb_epoch=50,
     tosave = {'history','model','data','scaler'},
     scaler=None,
     batch_size=256):
  
-    
-    history = model.fit(data.Xapp,data.yapp,batch_size=batch_size,nb_epoch=nb_epoch,validation_split=0.05)
+    if 'Sequential' in str(type(cmodel)):
+        model = cmodel
+        history = model.fit(data.Xapp,data.yapp,batch_size=batch_size,nb_epoch=nb_epoch,validation_split=0.05)
+    elif 'kerasnn' in str(type(cmodel)):
+        X = data.Xapp.stack(z=data.Xval.dims[1:])
+        y = data.yapp
+        cmodel.fit(X,y,verbose=1)
+        history = cmodel.history_
+        model = cmodel.nn_
+        
+
     modelname = 'rnn.json'
     weights = 'weights.h5'
     datatrain =  'datatrain.npz'

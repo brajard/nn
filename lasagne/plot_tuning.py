@@ -30,7 +30,9 @@ for ntype in net_type:
         corr[ntype][i]=m
         corrapp[ntype][i]=app
     plt.plot(nw[ntype],corr[ntype],'.',markersize=10,label=ntype)
-
+    #print of the best
+    ibest= np.argmax(corr[ntype])
+    print(lparam[ibest])
 
 #plt.plot(nw,corrapp,'.',markersize=10,color='0.75',label='training')
 #plt.plot(nw,corr,'.',markersize=10,color='black',label='validation')

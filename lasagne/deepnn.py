@@ -114,7 +114,7 @@ class kerasnn (BaseEstimator, RegressorMixin):
         return self.nn_
             
 
-    def fit(self,X,y):
+    def fit(self,X,y,verbose=0):
         X, y = check_X_y(X,y,multi_output=True)
         self.reshape(X) #compute self.XX_
         self.y_ = y
@@ -122,7 +122,7 @@ class kerasnn (BaseEstimator, RegressorMixin):
   
         self.history_ = self.nn_.fit(self.XX_,self.y_,batch_size=self.batch_size_,\
                                   nb_epoch=self.nb_epoch_,\
-                                  validation_split=self.validation_split_,verbose=0)
+                                  validation_split=self.validation_split_,verbose=verbose)
     
         return self
 
