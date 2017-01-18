@@ -1,4 +1,8 @@
+from importlib import reload
+import deepnn
+reload(deepnn)
 from deepnn import kerasnn
+
 from sklearn.model_selection import GridSearchCV
 from datatools import prepare_data
 import pickle
@@ -14,8 +18,8 @@ data,scaler = prepare_data(datadir=datadir,fname=fname,geofile=geofile,lognorm=T
 
 X = data.Xapp.stack(z=data.Xval.dims[1:])
 y = data.yapp
-sk_nn = kerasnn(shapef_=data.Xval.shape[1:],nb_epoch_=100,validation_split_=0)
-step=3
+sk_nn = kerasnn(shapef_=data.Xval.shape[1:],nb_epoch_=100,validation_split_=0,lr_=0.01)
+step=5
 if step==1:
     outfile = 'output_gridsearch_step1'
     param_grid={'n_feat_':[3,5,7,10],'nhid1_':[8,12,16],'nhid2_':[4,6,8],'filter_size':[3,5]}
@@ -43,7 +47,17 @@ elif step==4:
     outfile= 'output_gridsearch_step4'
     param_grid = {'n_feat_':[3],'nhid1_':[8],'nhid2_':[4],'filter_size_':[5],'lr_':[0.01],'batchsize_':[256]}
 
-clf = GridSearchCV(sk_nn,param_grid,cv=4,n_jobs=4,verbose=2)
+elif step==5:
+    outfile = 'output_gridserch_allparam'
+    param_grid = [{'network_type_':['dense'],'nhid1_':[2,4,5,6],'nhid2_':[10,20,30,40]},
+                  {'network_type_':['lstm'],'nhid1_':[8,12,16,20],'nhid2_':[6,10,16,20]},
+                  {'network_type_':['conv'],'n_feat_in_':[3,6,9,12],'n_feat_out_':[3,6,10,14]},
+                  {'network_type_':['all'],'n_feat_in_':[3,5,7,10],'nhid1_':[8,12,16,20],'nhid2_':[4,6,8,10],'n_feat_out_':[3,5,7]}]
+
+#param_grid = {'nb_epoch_':[1],'network_type_':['conv']} #For all
+
+#clf = GridSearchCV(sk_nn,param_grid,verbose=2)
+clf = GridSearchCV(sk_nn,param_grid,cv=4,n_jobs=8,verbose=2)
 
 clf.fit(X,y)
 ostr =[]
