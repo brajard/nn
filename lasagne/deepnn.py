@@ -111,7 +111,7 @@ class kerasnn (BaseEstimator, RegressorMixin):
   
         self.history_ = self.nn_.fit(self.XX_,self.y_,batch_size=self.batch_size_,\
                                   nb_epoch=self.nb_epoch_,\
-                                  validation_split=self.validation_split_,verbose=1)
+                                  validation_split=self.validation_split_,verbose=0)
     
         return self
 
