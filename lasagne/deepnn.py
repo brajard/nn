@@ -60,25 +60,29 @@ class kerasnn (BaseEstimator, RegressorMixin):
                           'batch_size_','nb_epoch_','validation_split_','lr_','network_type_'}
 
     def reshape(self,X):
+        self.set_shape(X.shape)
+        self.XX_ = X.reshape(self.shape_)
+        
+    def set_shape(self,shapex=None):
+        nfeature = reduce(mul,self.shapef_)
+        if shapex is None:
+            shapex = tuple([1])+tuple([nfeature])
+        assert(nfeature==shapex[1]),'wrong size of X'
         if self.network_type_ == 'all' or self.network_type_ == 'lstm':
-            nfeature = reduce(mul,self.shapef_)
-            assert(nfeature==X.shape[1]),'wrong size of X'
-            self.shape_ = tuple([X.shape[0]])+tuple(self.shapef_) 
-            self.XX_ = X.reshape(self.shape_)
+            self.shape_ = tuple([shapex[0]])+tuple(self.shapef_) 
         elif self.network_type_ == 'dense' or self.network_type_ == 'conv':
-            nfeature = reduce(mul,self.shapef_)
-            assert(nfeature==X.shape[1]),'wrong size of X'
-            self.shape_ = tuple([X.shape[0]])+tuple([self.shapef_[0]*self.shapef_[1]])+tuple(self.shapef_[2:])
-            self.XX_ = X.reshape(self.shape_)
+            self.shape_ = tuple([shapex[0]])+tuple([self.shapef_[0]*self.shapef_[1]])+tuple(self.shapef_[2:])
         else:
             raise ValueError('not a valid model type')
-        
-        
 
-    def fit(self,X,y):
-        X, y = check_X_y(X,y,multi_output=True)
-        self.reshape(X) #compute self._XX
-        self.y_ = y
+    def set_model(self):
+        if not hasattr(self,'shape_'):
+            raise NameError('shape_ attribute is not defined')
+        if (self.network_type_ == 'all' or self.network_type_ == 'lstm') and not len(self.shape_) == 5 :
+            raise ValueError('invalid shape for model type')
+        if ( self.network_type_ == 'dense' or self.network_type_ == 'conv') and not len(self.shape_) == 4:
+            raise ValueError('invalid shape for model type')
+        
         if self.network_type_ == 'all':
             self.nn_ = define_model_all(shape = self.shape_,
                                         n_feat_in=self.n_feat_in_, n_feat_out=self.n_feat_out_,
@@ -86,19 +90,18 @@ class kerasnn (BaseEstimator, RegressorMixin):
                                         filter_size_out= self.filter_size_out_,
                                         nhid1=self.nhid1_, nhid2 = self.nhid2_,
                                         pool_size = self.pool_size_,lr=self.lr_)
-        elif self.network_type_ == 'lstm':
-            print("!!! lstm !!!")
 
+        elif self.network_type_ == 'lstm':
             self.nn_ = define_model_lstm(shape = self.shape_,
                                     nhid1=self.nhid1_, nhid2 = self.nhid2_,
                                     lr=self.lr_)
+
         elif self.network_type_ == 'dense':
             self.nn_ = define_model_Dense(shape = self.shape_,
                                     nhid1=self.nhid1_, nhid2 = self.nhid2_,
                                     lr=self.lr_)
+
         elif self.network_type_ == 'conv':
-            print("!!! conv !!!")
-                        
             self.nn_ = define_model_Conv(shape = self.shape_,
                                          n_feat_in=self.n_feat_in_, n_feat_out=self.n_feat_out_,
                                          filter_size_in= self.filter_size_in_,
@@ -108,6 +111,14 @@ class kerasnn (BaseEstimator, RegressorMixin):
         else:
             raise ValueError('not a valid model type')
 
+        return self.nn_
+            
+
+    def fit(self,X,y):
+        X, y = check_X_y(X,y,multi_output=True)
+        self.reshape(X) #compute self.XX_
+        self.y_ = y
+        self.set_model()
   
         self.history_ = self.nn_.fit(self.XX_,self.y_,batch_size=self.batch_size_,\
                                   nb_epoch=self.nb_epoch_,\
