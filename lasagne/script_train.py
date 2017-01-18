@@ -4,9 +4,8 @@
 ## Import libraries
 import datatools
 import os
-from importlib import reload
-reload(datatools)
-from datatools import prepare_data, define_model_all,make_train
+from deepnn import kerasnn
+from datatools import prepare_data, make_train
 import theano
 
 #theano.config.optimizer = 'None'
@@ -16,21 +15,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 plt.close("all")
-outdir = '../data/nn_rec7'
+outdir = '../data/nn_bestnet_all'
 
 datadir = '/net/argos/data/parvati/aaclod/home2/aaclod/MAREES/python_nn/nn'
 fname = 'MATRICE_01_2017.mat'
 geofile = 'USABLE_PointbyPoint_01_2017.mat'
 data,scaler = prepare_data(datadir=datadir,fname=fname,geofile=geofile,lognorm=True,epsi=0.0001,smNum = [44,55,66,77,88,99,110])
 
+params = {'n_feat_in_': 5, 'network_type_': 'all', 'n_feat_out_': 7, 'nhid2_': 10, 'nhid1_': 12}
 
-n_feat = 7
-filter_size=3
-nhid1 = 12
-nhid2 = 10
-pool_size = (2,2)
-
-model = define_model_all(shape=data.Xapp.shape,n_feat=n_feat,filter_size=filter_size,nhid1=nhid1,nhid2=nhid2,pool_size=pool_size,lr=0.01)
-
-
-make_train(data,model,outdir,nb_epoch=100)
+model = kerasnn(shapef_=data.Xval.shape[1:],nb_epoch_=200)
+model.set_params(**params)
+make_train(data,model,outdir)
