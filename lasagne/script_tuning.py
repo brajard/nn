@@ -1,6 +1,6 @@
-from importlib import reload
+#!/usr/bin/env python
+#from importlib import reload
 import deepnn
-reload(deepnn)
 from deepnn import kerasnn
 
 from sklearn.model_selection import GridSearchCV
@@ -41,18 +41,18 @@ elif step==3:
     # {'lr_': 0.01, 'n_feat_': 10, 'filter_size': 3, 'batchsize_': 256, 'nhid1_': 16, 'nhid2_': 8}
 
     outfile= 'output_gridsearch_step3'
-    param_grid = {'n_feat_':[3,5,7,10],'nhid1_':[8,12,16,20],'nhid2_':[4,6,8,10],'filter_size_':[3],'lr_':[0.01],'batchsize_':[256]}
+    param_grid = {'n_feat_':[3,5,7,10],'nhid1_':[8,12,16],'nhid2_':[8,10,12],'filter_size_':[3],'lr_':[0.01],'batchsize_':[256]}
 
 elif step==4:
     outfile= 'output_gridsearch_step4'
     param_grid = {'n_feat_':[3],'nhid1_':[8],'nhid2_':[4],'filter_size_':[5],'lr_':[0.01],'batchsize_':[256]}
 
 elif step==5:
-    outfile = 'output_gridserch_allparam'
+    outfile = 'output_gridsearch_allparam'
     param_grid = [{'network_type_':['dense'],'nhid1_':[2,4,5,6],'nhid2_':[10,20,30,40]},
                   {'network_type_':['lstm'],'nhid1_':[8,12,16,20],'nhid2_':[6,10,16,20]},
-                  {'network_type_':['conv'],'n_feat_in_':[3,6,9,12],'n_feat_out_':[3,6,10,14]},
-                  {'network_type_':['all'],'n_feat_in_':[3,5,7,10],'nhid1_':[8,12,16,20],'nhid2_':[4,6,8,10],'n_feat_out_':[3,5,7]}]
+                  {'network_type_':['conv'],'n_feat_in_':[3,6,9,12],'nhid1_':[20,25,30],'n_feat_out_':[3,6,10,14]},
+                  {'network_type_':['all'],'n_feat_in_':[3,5,7],'nhid1_':[8,12,16],'nhid2_':[8,10,12],'n_feat_out_':[5,7,9]}]
 
 #param_grid = {'nb_epoch_':[1],'network_type_':['conv']} #For all
 
