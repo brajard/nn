@@ -367,7 +367,7 @@ def define_model_Dense(shape,
     model.add(Dense(input_dim=nhid1,output_dim=nhid2))
     model.add(Activation("relu"))
     model.add(Dense(input_dim=nhid1,output_dim=nx*ny))
-    model.add(Activation("relu"))
+    model.add(Activation("linear"))
     optimizer = rmsprop(lr=lr)
     model.compile(loss="mean_squared_error",optimizer=optimizer)
     return model
@@ -387,7 +387,7 @@ def define_model_lstm(shape,
     model.add(Activation("relu"))
     model.add(LSTM(output_dim=nhid2,return_sequences=False))
     model.add(Dense(input_dim=nhid2,output_dim=nx*ny))
-    model.add(Activation("relu"))
+    model.add(Activation("linear"))
     optimizer = rmsprop(lr=lr)
     model.compile(loss="mean_squared_error",optimizer=optimizer)
     

@@ -12,7 +12,7 @@ from scipy.io import savemat
 import pickle
 from keras.utils.visualize_util import plot
 
-outdir = '../data/nn_bestnet_all'
+outdir = '../data/nn_bestnet_dense'
 modelname = 'rnn.json'
 weights = 'weights.h5'
 data =  'dataval.npz'
@@ -35,12 +35,17 @@ yapp = npzfile['yval']
 start = -24*30
 
 
+ypers = Xapp[:,-1,0].reshape(Xapp.shape[0],-1)
+plot_sequence(yapp.reshape([-1,7,7]),ypers.reshape([-1,7,7]),start=start,length=7)
+
+
+shape = Xapp.shape
+if 'conv' in outdir or 'dense' in outdir:
+    Xapp = Xapp.reshape(tuple([shape[0]])+ tuple([shape[1]*shape[2]])+shape[3:])
+
 ypred = model.predict(Xapp).squeeze()
 
 plot_sequence(yapp.reshape([-1,7,7]),ypred.reshape([-1,7,7]),start=start,length=7)
-
-ypers = Xapp[:,-1,0].reshape(Xapp.shape[0],-1)
-plot_sequence(yapp.reshape([-1,7,7]),ypers.reshape([-1,7,7]),start=start,length=7)
 
 num_pix = 24
 yapp_c = yapp[start:,num_pix]
