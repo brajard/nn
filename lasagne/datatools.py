@@ -300,8 +300,10 @@ def prepare_data(
     ival = list(range(0,21*24)) + list(range(n-21*24,n))
     ilearn = [i for i in range(n) if i not in ival]
     
- #   XX = XX.reshape([XX.shape[0],nseq,npar,nx,ny])
-    y = y.stack(pixind=('xind','yind'))
+    #   XX = XX.reshape([XX.shape[0],nseq,npar,nx,ny])
+    y = y.rename({'xind':'xind_y','yind':'yind_y'}) 
+    #to avoid merge conflict
+    y = y.stack(pixind=('xind_y','yind_y'))
 
     Xapp = XX[ilearn]
     yapp = y[ilearn]
