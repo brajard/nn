@@ -24,3 +24,10 @@ Deprecated :
 * An example of a simple RNN, see [lasagne/recurrent_test.py](lasagne/recurrent_test.py)
 
 * An example of CNN + RNN, see  [lasagne/combo_test.py](lasagne/combo_test.py)
+
+* Some links tied to LSTMs:
+[http://colah.github.io/posts/2015-08-Understanding-LSTMs/](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)
+
+* and:
+
+[http://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/](http://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/)
