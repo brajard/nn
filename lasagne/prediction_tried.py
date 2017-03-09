@@ -1,14 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Mar  8 16:38:57 2017
-
-@author: cvasseur
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
 Created on Wed Mar  8 09:23:39 2017
 
 @author: cvasseur
@@ -42,7 +34,7 @@ plt.close("all")
 # nombre d'input ici : t-6, t-5, t-4, t-3, t-2, t-1
 look_back=6 #parametre à modifier dans la fonction prepare data pas ici
 visualisation=True
-max=200
+max=150
 
 model = model_from_json(open(os.path.join(outdir,modelname)).read())
 model.load_weights(os.path.join(outdir,weights))
