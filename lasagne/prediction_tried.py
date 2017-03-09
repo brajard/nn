@@ -17,11 +17,10 @@ Created on Wed Mar  8 09:23:39 2017
 #!/usr/bin/env python
 import os
 from importlib import reload
-import xarray as xr
 import datatools
 reload(datatools)
-from datatools_tried import moy_corr
 from keras.models import model_from_json
+from datatools_tried import predict_time
 import numpy as np
 import matplotlib.pyplot as plt
 from keras.utils.visualize_util import plot
@@ -64,29 +63,9 @@ Xval2 = Xapp[504:1008,:]
 yval1 =yapp[0:504,:]
 yval2 =yapp[504:1008,:]
 
-for j in range(0,max-1):
-    prediction[:,j,:] = model.predict(Xval1).squeeze()
 
-    # Maj de Xval
-    for i in range(1,look_back-1):
-        Xval1[:,i-1]=Xval1[:,i]
-    Xval1[:,look_back-1]=prediction[:,j,:].reshape([504,1,7,7])
-    
-    prediction[:,j+1,:] = model.predict(Xval1).squeeze()
-
-# moyenne des corrélations par colonne de la matrice prediction avec les valeurs de yval(ici yapp)
-corr = np.zeros(max)
-for i in range(0,max):
-    corr[i] = moy_corr(yval1,prediction[:,i],i+1)
-
-
-prediction=xr.DataArray(prediction)
-prediction.name = 'prediction'
-corr=xr.DataArray(corr)
-corr.name='correlation'
-data=xr.merge([prediction, corr])
-
-os.makedirs(outdir2,exist_ok=True)
-np.savez(os.path.join(outdir2,'prediction21joursav.npz'),prediction=data.prediction,corr=data.correlation)
+# prediction des 21 jours avants et enregistrement des fichiers
+predict_time(model,Xval1,yval1,prediction,max,look_back,outdir2,'prediction21joursav.npz')
+predict_time(model,Xval2,yval2,prediction,max,look_back,outdir2,'prediction21joursap.npz')
 
 print('Data saved in directory ../data/prediction/')
