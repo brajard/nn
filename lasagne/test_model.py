@@ -12,7 +12,7 @@ from scipy.io import savemat
 import pickle
 from keras.utils.visualize_util import plot
 
-outdir = '../data/nn_bestnet_dense'
+outdir = '../data/nn_bestnet'
 modelname = 'rnn.json'
 weights = 'weights.h5'
 data =  'dataval.npz'
@@ -20,7 +20,6 @@ histname = 'history.p'
 tosave = True
 tosavemat = True
 tosavemodel = True
-
 plt.close("all")
 
 model = model_from_json(open(os.path.join(outdir,modelname)).read())
