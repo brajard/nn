@@ -46,7 +46,7 @@ def denormalize (X,scaler=preprocessing.StandardScaler,parname = 'parameters'):
     if len(L)==4:
          Xd = Xd.transpose(L[0],L[1],L[2],L[3])
     if len(L)==5:
-         XD = Xd.transpose(L[0],L[1],L[2],L[3],L[4])
+         Xd = Xd.transpose(L[0],L[1],L[2],L[3],L[4])
     return(Xd,scaler)
 
     
