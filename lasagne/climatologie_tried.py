@@ -7,20 +7,17 @@ Created on Thu Mar  9 15:13:43 2017
 """
 
 #!/usr/bin/env python
-### Script to run a complete experiment
+### Script : comparaison avec un jour moyen
 
 ## Import libraries
-import datatools
+from datatools import prepare_data
 import os
-from deepnn import kerasnn
-from datatools import prepare_data, make_train
-import theano
-
-#theano.config.optimizer = 'None'
-
 import numpy as np
-
 import matplotlib.pyplot as plt
+
+
+outdir = '../data/nn_bestnet'
+data =  'dataval.npz'
 
 plt.close("all")
 outdir = '../data/nn_bestnet'
@@ -30,11 +27,27 @@ fname = 'MATRICE_01_2017.mat'
 geofile = 'USABLE_PointbyPoint_01_2017.mat'
 data,scaler = prepare_data(datadir=datadir,fname=fname,geofile=geofile,lognorm=True,epsi=0.0001,smNum = [44,55,66,77,88,99,110], uvNum=[])
 
-# création d'un jour moyen 
-Yapp=data.yapp[17:10745,:]
+# calcul du jour moyen (dupliqué en 5 jours)
+Yapp=data.yapp[18:10746,:]
 t=np.arange(0,10725,24)
-res=np.zeros((24,49))
-
+res=np.zeros((120,49))
 for i in range(0,24):
     res[i,:]=sum(Yapp[t+i])/447
-    
+    res[i+24,:]=res[i,:]
+    res[i+48,:]=res[i,:]
+    res[i+72,:]=res[i,:]
+    res[i+96,:]=res[i,:]
+
+plt.figure()
+plt.plot(res)
+plt.show()
+
+#npzfile = np.load(os.path.join(outdir,data))
+#Yval = npzfile['yval'][18:,:]
+#Xval = npzfile['Xval']
+#cmpt=0
+#correlation=0
+#for i in range(0,120):
+#    correlation=np.corrcoef(Yval[i,],res[i,])[0,1]+correlation
+#    cmpt=cmpt+1
+#print(correlation/cmpt)

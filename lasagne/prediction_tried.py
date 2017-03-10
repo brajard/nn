@@ -32,8 +32,7 @@ plt.close("all")
 # visualisation des graphes en fonction du nombre de pixels : visualisation
 # prediction maximum : max
 # nombre d'input ici : t-6, t-5, t-4, t-3, t-2, t-1
-look_back=6 #parametre à modifier dans la fonction prepare data pas ici
-visualisation=True
+#look_back=6 #parametre à modifier dans la fonction prepare data pas ici
 max=150
 
 model = model_from_json(open(os.path.join(outdir,modelname)).read())
@@ -55,6 +54,7 @@ Xval2 = Xapp[504:1008,:]
 yval1 =yapp[0:504,:]
 yval2 =yapp[504:1008,:]
 
+look_back=len(Xapp[0,:,0,0,0])
 
 # prediction des 21 jours avants et enregistrement des fichiers
 predict_time(model,Xval1,yval1,prediction,max,look_back,outdir2,'prediction21joursav.npz')

@@ -29,15 +29,6 @@ def moy_corr(yv,ypred,horizon):
         n=n+1
     return corr/n
 
-
-def plot_horizon(corr,title):
-    plt.figure()
-    plt.plot(corr)
-    plt.title(title)
-    plt.xlabel('horizon')
-    plt.ylabel('corrélation')
-    #plt.show()
-
 # prediction des temps t+1,t+2,t+3 ... t+max
 # sauvegarde des resultats dans le dossier data/prediction/
 def predict_time(model,Xval,yval,prediction,max,look_back,outdir,fname):
@@ -66,6 +57,27 @@ def predict_time(model,Xval,yval,prediction,max,look_back,outdir,fname):
     
     os.makedirs(outdir,exist_ok=True)
     np.savez(os.path.join(outdir,fname),prediction=data.prediction,corr=data.correlation)
+
+def calcul_persistence(Ypers,Yval,max):
+    corr_hor=np.zeros(max)
+    for j in range(0,max):
+        correlation=0
+        cmpt=0
+        for i in range(0,len(Ypers)-j):
+            correlation=np.corrcoef(Yval[i+j,],Ypers[i,])[0,1]+correlation
+            cmpt=cmpt+1
+        corr_hor[j]=correlation/cmpt    
+    return corr_hor
+
+def plot_horizon(corr,corr2,title):
+    plt.figure()
+    plt.plot(corr)
+    plt.plot(corr2)
+    plt.title(title)
+    plt.legend(['modele','persistence'])
+    plt.xlabel('horizon')
+    plt.ylabel('corrélation')
+    #plt.show()
 
 def plot_ligne_prediction(prediction,yval1,l,max,title):
     string = []

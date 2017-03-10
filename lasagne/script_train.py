@@ -20,7 +20,7 @@ outdir = '../data/nn_bestnet'
 datadir = '/net/argos/data/parvati/aaclod/home2/aaclod/MAREES/python_nn/nn'
 fname = 'MATRICE_01_2017.mat'
 geofile = 'USABLE_PointbyPoint_01_2017.mat'
-data,scaler = prepare_data(datadir=datadir,fname=fname,geofile=geofile,lognorm=True,epsi=0.0001,smNum = [44,55,66,77,88,99,110], uvNum=[])
+data,scaler = prepare_data(datadir=datadir,fname=fname,geofile=geofile,lognorm=True,epsi=0.0001,nseq=6,smNum = [44,55,66,77,88,99,110], uvNum=[])
 
 params = {'n_feat_in_': 5, 'network_type_': 'all', 'n_feat_out_': 7, 'nhid2_': 10, 'nhid1_': 12}
 #params = {'network_type_': 'conv', 'n_feat_in_': 12, 'n_feat_out_': 14}

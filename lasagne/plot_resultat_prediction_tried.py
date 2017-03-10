@@ -5,14 +5,13 @@ Created on Thu Mar  9 10:40:05 2017
 
 @author: cvasseur
 """
-
-
 #!/usr/bin/env python
+# script affichage des resultats obtenues pour une prédiction jusqu'à t+max
 import os
 from importlib import reload
 import datatools
 reload(datatools)
-from datatools_tried import plot_horizon, plot_ligne_prediction, plot_temporelle
+from datatools_tried import plot_horizon, plot_ligne_prediction, plot_temporelle, calcul_persistence
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -30,41 +29,44 @@ tosavemodel = True
 
 plt.close("all")
 
-npzfile = np.load(os.path.join(outdir,data))
-Xapp = npzfile['Xval']
-yapp = npzfile['yval']
-
-Xval1 = Xapp[0:504,:]
-Xval2 = Xapp[504:1008,:]
-yval1 =yapp[0:504,:]
-yval2 =yapp[504:1008,:]
-
 # chargement des predictions obtenues : 21 jours avant
 npzfile = np.load(os.path.join(outdir2,data2))
 prediction_av = npzfile['prediction']
 corr_av = npzfile['corr']
 
-# chargement des predictions obtenues : 21 jours avant
+# chargement des predictions obtenues : 21 jours apres
 npzfile = np.load(os.path.join(outdir2,data3))
 prediction_ap = npzfile['prediction']
 corr_ap = npzfile['corr']
 
+npzfile = np.load(os.path.join(outdir,data))
+Xapp = npzfile['Xval']
+yapp = npzfile['yval']
 
+# étude faite sur les 21 jours avant et 21 jours apres 
+Xval1 = Xapp[0:504,:]
+Xval2 = Xapp[504:1008,:]
+yval1 =yapp[0:504,:]
+yval2 =yapp[504:1008,:]
 
-# PARAMETRES
+# correlation persistence en fonction de l'horizon
+Yval = npzfile['yval']
+look_back=len(Xapp[0,:,0,0,0])
+Ypers=Xapp[:,look_back-1,0].reshape([len(Xapp[:,look_back-1,0]),49])
+max=prediction_av[1,:,1].shape[0] #fixe lors de la prediction
+corr_hor = calcul_persistence(Ypers,Yval,max)
+
+# -------------------------
+# PLT RESULTATS
+# ------------------------
 # visualisation des graphes en fonction du nombre de pixels : visualisation
 # prediction maximum : max
 # nombre d'input ici : t-6, t-5, t-4, t-3, t-2, t-1
-look_back=6 #parametre à modifier dans la fonction prepare data pas ici
-visualisation=True
-max=prediction_av[1,:,1].shape[0] #fixe lors de la prediction
-
-
 # plt correlation en fonction de l'horizon
 title='Corrélation en fonction de l horizon (21 jours avant)'
-plot_horizon(corr_av,title)
+plot_horizon(corr_av,corr_hor,title)
 title='Corrélation en fonction de l horizon (21 jours après)'
-plot_horizon(corr_ap,title)
+plot_horizon(corr_ap,corr_hor,title)
 
 #l est la ligne de la matrice que l'on regarde (definie aussi l'horizon dans ce cas)
 l=4
