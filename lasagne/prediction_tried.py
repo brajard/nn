@@ -44,7 +44,6 @@ if tosavemodel:
 npzfile = np.load(os.path.join(outdir,data))
 Xapp = npzfile['Xval']
 yapp = npzfile['yval']
-prediction = np.zeros((504,max,49))
 
 
 # prédiction tout d'abord sur les 21 jours avant Xval1 
@@ -57,7 +56,7 @@ yval2 =yapp[504:1008,:]
 look_back=len(Xapp[0,:,0,0,0])
 
 # prediction des 21 jours avants et enregistrement des fichiers
-predict_time(model,Xval1,yval1,prediction,max,look_back,outdir2,'prediction21joursav.npz')
-predict_time(model,Xval2,yval2,prediction,max,look_back,outdir2,'prediction21joursap.npz')
+predict_time(model,Xval1,yval1,max,outdir2,'prediction21joursav.npz')
+predict_time(model,Xval2,yval2,max,outdir2,'prediction21joursap.npz')
 
 print('Data saved in directory ../data/prediction/')

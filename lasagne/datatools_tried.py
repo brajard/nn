@@ -31,17 +31,18 @@ def moy_corr(yv,ypred,horizon):
 
 # prediction des temps t+1,t+2,t+3 ... t+max
 # sauvegarde des resultats dans le dossier data/prediction/
-def predict_time(model,Xval,yval,prediction,max,look_back,outdir,fname):
-    size=len(prediction)
-    for j in range(0,max-1):
+def predict_time(model,Xval,yval,max,outdir,fname):
+    size,lookback,npar,nx,ny = Xval.shape
+
+    prediction = np.zeros((size,max,yval.shape[1]))
+    for j in range(0,max):
         prediction[:,j,:] = model.predict(Xval).squeeze()
     
         # Maj de Xval
-        for i in range(1,look_back-1):
-            Xval[:,i-1]=Xval[:,i]
-        Xval[:,look_back-1]=prediction[:,j,:].reshape([size,1,7,7])
+        Xval[:,:-1]=Xval[:,1:]
+        Xval[:,-1]=prediction[:,j,:].reshape([size,npar,nx,ny])
         
-        prediction[:,j+1,:] = model.predict(Xval).squeeze()
+        #prediction[:,j+1,:] = model.predict(Xval).squeeze()
     
     # moyenne des corrélations par colonne de la matrice prediction avec les valeurs de yval(ici yapp)
     corr = np.zeros(max)
