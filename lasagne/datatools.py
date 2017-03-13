@@ -407,7 +407,7 @@ def define_model_all(shape,
                      lr=0.01):
     
     nt,n_prev,npar,nx,ny = shape                 
-    in_out_neurons = nx*ny
+    #in_out_neurons = nx*ny
 
     new_nx = nx//pool_size[0]
     new_ny = ny//pool_size[1]

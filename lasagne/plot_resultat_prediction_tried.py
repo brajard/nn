@@ -51,14 +51,14 @@ yval2 =yapp[504:1008,:]
 
 # correlation persistence en fonction de l'horizon
 Yval = npzfile['yval']
-look_back=len(Xapp[0,:,0,0,0])
-Ypers=Xapp[:,look_back-1,0].reshape([len(Xapp[:,look_back-1,0]),49])
+Ypers=Xapp[:,-1,0].reshape([len(Xapp[:,-1,0]),49])
 max=prediction_av[1,:,1].shape[0] #fixe lors de la prediction
 corr_hor = calcul_persistence(Ypers,Yval,max)
 
 # -------------------------
 # PLT RESULTATS
 # ------------------------
+look_back=len(Xapp[0,:,0,0,0])
 # visualisation des graphes en fonction du nombre de pixels : visualisation
 # prediction maximum : max
 # nombre d'input ici : t-6, t-5, t-4, t-3, t-2, t-1

@@ -25,6 +25,6 @@ data,scaler = prepare_data(datadir=datadir,fname=fname,geofile=geofile,lognorm=T
 params = {'n_feat_in_': 5, 'network_type_': 'all', 'n_feat_out_': 7, 'nhid2_': 10, 'nhid1_': 12}
 #params = {'network_type_': 'conv', 'n_feat_in_': 12, 'n_feat_out_': 14}
 #params = {'network_type_': 'dense', 'nhid1_': 6, 'nhid2_': 40}
-model = kerasnn(shapef_=data.Xval.shape[1:],nb_epoch_=50)
+model = kerasnn(shapef_=data.Xval.shape[1:],nb_epoch_=200)
 model.set_params(**params)
 make_train(data,model,outdir)
