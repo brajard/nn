@@ -33,11 +33,13 @@ plt.close("all")
 npzfile = np.load(os.path.join(outdir2,data2))
 prediction_av = npzfile['prediction']
 corr_av = npzfile['corr']
+rmse_av = npzfile['rmse']
 
 # chargement des predictions obtenues : 21 jours apres
 npzfile = np.load(os.path.join(outdir2,data3))
 prediction_ap = npzfile['prediction']
 corr_ap = npzfile['corr']
+rmse_ap = npzfile['rmse']
 
 npzfile = np.load(os.path.join(outdir,data))
 Xapp = npzfile['Xval']
@@ -64,9 +66,11 @@ look_back=len(Xapp[0,:,0,0,0])
 # nombre d'input ici : t-6, t-5, t-4, t-3, t-2, t-1
 # plt correlation en fonction de l'horizon
 title='Corrélation en fonction de l horizon (21 jours avant)'
-plot_horizon(corr_av,corr_hor,title)
+title2 = 'RMSE en fonction de l horizon (21 jours avant)'
+plot_horizon(corr_av,corr_hor,rmse_av,title,title2)
 title='Corrélation en fonction de l horizon (21 jours après)'
-plot_horizon(corr_ap,corr_hor,title)
+title2 = 'RMSE en fonction de l horizon (21 jours après)'
+plot_horizon(corr_ap,corr_hor,rmse_ap,title,title2)
 
 #l est la ligne de la matrice que l'on regarde (definie aussi l'horizon dans ce cas)
 l=4

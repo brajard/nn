@@ -40,24 +40,26 @@ def predict_time(model,Xval,yval,max,outdir,fname):
     
         # Maj de Xval
         Xval[:,:-1]=Xval[:,1:]
-        Xval[:,-1]=prediction[:,j,:].reshape([size,npar,nx,ny])
-        
-        #prediction[:,j+1,:] = model.predict(Xval).squeeze()
+        Xval[:,-1]=prediction[:,j,:].reshape([size,npar,nx,ny]) 
     
     # moyenne des corrélations par colonne de la matrice prediction avec les valeurs de yval(ici yapp)
     corr = np.zeros(max)
+    rmse = np.zeros(max)
     for i in range(0,max):
         corr[i] = moy_corr(yval,prediction[:,i],i+1)
+        rmse[i] = np.sqrt(np.mean((yval-prediction[:,i])**2))
     
     # sauvegarde des fichiers
     prediction=xr.DataArray(prediction)
     prediction.name = 'prediction'
     corr=xr.DataArray(corr)
     corr.name='correlation'
-    data=xr.merge([prediction, corr])
+    rmse=xr.DataArray(rmse)
+    rmse.name = 'rmse'
+    data=xr.merge([prediction, corr, rmse])
     
     os.makedirs(outdir,exist_ok=True)
-    np.savez(os.path.join(outdir,fname),prediction=data.prediction,corr=data.correlation)
+    np.savez(os.path.join(outdir,fname),prediction=data.prediction,corr=data.correlation, rmse=data.rmse)
 
 def calcul_persistence(Ypers,Yval,max):
     corr_hor=np.zeros(max)
@@ -70,14 +72,21 @@ def calcul_persistence(Ypers,Yval,max):
         corr_hor[j]=correlation/cmpt    
     return corr_hor
 
-def plot_horizon(corr,corr2,title):
+def plot_horizon(corr,corr2,rmse, title,title2):
     plt.figure()
     plt.plot(corr)
-    plt.plot(corr2)
+    #plt.plot(corr2)
     plt.title(title)
     plt.legend(['modele','persistence'])
     plt.xlabel('horizon')
     plt.ylabel('corrélation')
+    
+    plt.figure()
+    plt.plot(rmse)
+    plt.title(title2)
+    #plt.legend(['modele','persistence'])
+    plt.xlabel('horizon')
+    plt.ylabel('rmse')    
     #plt.show()
 
 def plot_ligne_prediction(prediction,yval1,l,max,title):
