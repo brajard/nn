@@ -33,7 +33,7 @@ plt.close("all")
 # prediction maximum : max
 # nombre d'input ici : t-6, t-5, t-4, t-3, t-2, t-1
 #look_back=6 #parametre à modifier dans la fonction prepare data pas ici
-max=150
+max=10
 
 model = model_from_json(open(os.path.join(outdir,modelname)).read())
 model.load_weights(os.path.join(outdir,weights))
@@ -56,7 +56,15 @@ yval2 =yapp[504:1008,:]
 look_back=len(Xapp[0,:,0,0,0])
 
 # prediction des 21 jours avants et enregistrement des fichiers
-predict_time(model,Xval1,yval1,max,outdir2,'prediction21joursav.npz')
-predict_time(model,Xval2,yval2,max,outdir2,'prediction21joursap.npz')
-
+corr_av,rmse_av = predict_time(model,Xval1,yval1,max,outdir2,'prediction21joursav.npz')
+corr_av =np.asarray(corr_av)
+rmse_av = np.asarray(rmse_av)
+print('Corralation des 21 jours avant aux horizons 1, 2 et 4 :\n', corr_av[0],' | ',corr_av[1],' | ',corr_av[3])
+print('RMSE des 21 jours avant aux horizons 1, 2 et 4 :\n', rmse_av[0],' | ',rmse_av[1],' | ',rmse_av[3])
+corr_ap, rmse_ap = predict_time(model,Xval2,yval2,max,outdir2,'prediction21joursap.npz')
+corr_ap =np.asarray(corr_ap)
+rmse_ap = np.asarray(rmse_ap)
+print('Corralation des 21 jours apres aux horizons 1, 2 et 4 :\n', corr_ap[0],' | ',corr_ap[1],' | ',corr_ap[3])
+print('RMSE des 21 jours apres aux horizons 1, 2 et 4 :\n', rmse_ap[0],' | ',rmse_ap[1],' | ',rmse_ap[3])
+print('-----------------------------------------------------------------')
 print('Data saved in directory ../data/prediction/')

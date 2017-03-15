@@ -22,7 +22,10 @@ fname = 'MATRICE_01_2017.mat'
 geofile = 'USABLE_PointbyPoint_01_2017.mat'
 data,scaler = prepare_data(datadir=datadir,fname=fname,geofile=geofile,lognorm=True,epsi=0.0001,nseq=6,smNum = [44,55,66,77,88,99,110], uvNum=[])
 
-params = {'n_feat_in_': 5, 'network_type_': 'all', 'n_feat_out_': 7, 'nhid2_': 10, 'nhid1_': 12}
+# new params
+params = {'n_feat_in_': 5, 'network_type_': 'all', 'n_feat_out_': 9, 'nhid2_': 12, 'nhid1_': 12}
+# old params
+#params = {'n_feat_in_': 5, 'network_type_': 'all', 'n_feat_out_': 7, 'nhid2_': 10, 'nhid1_': 12}
 #params = {'network_type_': 'conv', 'n_feat_in_': 12, 'n_feat_out_': 14}
 #params = {'network_type_': 'dense', 'nhid1_': 6, 'nhid2_': 40}
 model = kerasnn(shapef_=data.Xval.shape[1:],nb_epoch_=200)

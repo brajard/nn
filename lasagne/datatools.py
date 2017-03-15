@@ -9,7 +9,7 @@ import pandas as pd
 import xarray as xr
 from sklearn import preprocessing
 from keras.models import Sequential  
-from keras.layers.core import Dense, Activation, Flatten, Reshape
+from keras.layers.core import Dense, Activation, Flatten, Reshape, Dropout
 from keras.layers.recurrent import SimpleRNN, LSTM, GRU
 from keras.layers.pooling import MaxPooling2D
 #from keras.layers.extra import TimeDistributedFlatten,TimeDistributedConvolution2D
@@ -420,8 +420,8 @@ def define_model_all(shape,
     model.add(TimeDistributed(Flatten()))
     model.add(TimeDistributed(Dense(nhid1)))
     model.add(Activation("relu"))
-    # model.add(GRU(output_dim=nhid2,return_sequences=False))
-    model.add(LSTM(output_dim=nhid2,return_sequences=False))
+    model.add(GRU(output_dim=nhid1,return_sequences=False))
+    #model.add(LSTM(output_dim=nhid2,return_sequences=False))
     model.add(Dense(input_dim=nhid2,output_dim=n_feat_out*new_nx*new_ny))
     model.add(Activation("relu"))
     model.add(Reshape((n_feat_out,new_nx,new_ny)))
@@ -431,7 +431,6 @@ def define_model_all(shape,
     optimizer = rmsprop(lr=lr)
     model.compile(loss="mean_squared_error",optimizer=optimizer)
     return model
-
     
 def save_data(
     data,

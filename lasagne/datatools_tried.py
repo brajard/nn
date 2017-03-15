@@ -60,6 +60,8 @@ def predict_time(model,Xval,yval,max,outdir,fname):
     
     os.makedirs(outdir,exist_ok=True)
     np.savez(os.path.join(outdir,fname),prediction=data.prediction,corr=data.correlation, rmse=data.rmse)
+    
+    return corr, rmse
 
 def calcul_persistence(Ypers,Yval,max):
     corr_hor=np.zeros(max)
@@ -72,27 +74,33 @@ def calcul_persistence(Ypers,Yval,max):
         corr_hor[j]=correlation/cmpt    
     return corr_hor
 
-def plot_horizon(corr,corr2,rmse, title,title2):
-    plt.figure()
-    plt.plot(corr)
-    #plt.plot(corr2)
-    plt.title(title)
-    plt.legend(['modele','persistence'])
-    plt.xlabel('horizon')
-    plt.ylabel('corrélation')
+def plot_horizon(corr,corr2,rmse,rmse2,fname):
     
-    plt.figure()
-    plt.plot(rmse)
-    plt.title(title2)
-    #plt.legend(['modele','persistence'])
-    plt.xlabel('horizon')
-    plt.ylabel('rmse')    
+    fig, (ax1,ax2) = plt.subplots( nrows=1, ncols=2 )  # create figure & 1 axis
+    ax1.plot(corr)
+    ax1.plot(corr2)
+    ax1.legend(['21 jours avant','21 jours après'])
+    ax1.set_xlabel('horizon')
+    ax1.set_ylabel('corrélation')
+    ax1.set_title('Corrélation en fonction de l horizon')
+    ax2.plot(rmse)
+    ax2.plot(rmse2)
+    ax2.legend(['21 jours avant','21 jours après'])
+    ax2.set_xlabel('horizon')
+    ax2.set_ylabel('rmse')    
+    ax2.set_title('RMSE en fonction de l horizon')
     #plt.show()
 
-def plot_ligne_prediction(prediction,yval1,l,max,title):
+    fig.savefig(fname)   # save the figure to file
+    
+
+def plot_ligne_prediction(prediction,yval1,l,title,fname):
+    # l : ligne de la matrice predidction (defini également l'horizon)
     string = []
+    max = prediction.shape[1]
+    
     if l > max :
-        plt.figure()
+        fig = plt.figure()
         plt.plot(yval1[l-1])
         string.append('truth')
         for i in range(0,max):
@@ -103,7 +111,7 @@ def plot_ligne_prediction(prediction,yval1,l,max,title):
         plt.ylabel('quantité de sable')
         plt.title(title)
     if l < max :
-        plt.figure()
+        fig = plt.figure()
         plt.plot(yval1[l-1])
         string.append('truth')        
         for i in range(0,l):
@@ -112,13 +120,15 @@ def plot_ligne_prediction(prediction,yval1,l,max,title):
         plt.legend(string)
         plt.xlabel('pixels')
         plt.ylabel('quantité de sable')
-        plt.title(title)   
+        plt.title(title)
+        
+    fig.savefig(fname)
 
 
-def plot_temporelle(prediction,yval1,horizon,title):
+def plot_temporelle(prediction,yval1,horizon,title,fname):
     string=[]
     size=len(prediction)
-    plt.figure()
+    fig = plt.figure()
     plt.plot(yval1[:,25])
     string.append('truth')    
     for i in range(0,horizon):
@@ -130,3 +140,5 @@ def plot_temporelle(prediction,yval1,horizon,title):
     plt.xlabel('temps')
     plt.ylabel('concentration')
     plt.title(title)
+    
+    fig.savefig(fname)
