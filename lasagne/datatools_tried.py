@@ -12,6 +12,26 @@ import numpy as np
 import matplotlib.pyplot as plt
 import xarray as xr
 
+def new_data(model, data):
+    size, lookback, npar, nx ,ny = data.Xapp.shape
+    
+    prediction = model.predict(data.Xapp).squeeze()
+    
+    data.Xapp[:,:-1]=data.Xapp[:,1:]
+    data.Xapp[:,-1]=prediction[:,:].reshape([size,1,nx,ny])    
+    
+    Xapp = xr.DataArray(data.Xapp[:size-1,:])
+    Xapp.name = 'Xapp'
+    yapp = xr.DataArray(data.yapp[:size-1,:])
+    yapp.name = 'yapp'
+    Xval = xr.DataArray(data.Xval)
+    Xval.name = 'Xval'
+    yval = xr.DataArray(data.yval)
+    yval.name = 'yval'
+        
+    data = xr.merge([Xapp, yapp, Xval, yval])
+    return data
+
 def plot_scatterbis(yt,yr):
     #plt.figure()
     #plt.scatter(yt,yr)

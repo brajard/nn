@@ -449,6 +449,8 @@ def make_train(
     outdir,
     nb_epoch=50,
     tosave = {'history','model','data','scaler'},
+    modelname = 'rnn.json',
+    weights = 'weights.h5',
     scaler=None,
     batch_size=256):
  
@@ -463,10 +465,9 @@ def make_train(
         model = cmodel.nn_
         
 
-    modelname = 'rnn.json'
-    weights = 'weights.h5'
-    datatrain =  'datatrain.npz'
-    dataval = 'dataval.npz'
+    
+    #datatrain =  'datatrain.npz'
+    #dataval = 'dataval.npz'
     os.makedirs(outdir,exist_ok=True)
     if 'history' in tosave:
         pickle.dump(history2dict(history), open(os.path.join(outdir,'history.p'), "wb" ))
@@ -478,7 +479,8 @@ def make_train(
         pickle.dump(scaler,open(os.path.join(outdir,'scaler.p'),"wb"))
     if 'data' in tosave:
         save_data(data,outdir)
-        
+    
+    return model
 
 def nweights(nn):
     return sum([w.size for w in nn.get_weights()])
