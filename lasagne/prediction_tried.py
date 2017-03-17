@@ -1,17 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-<<<<<<< HEAD
-=======
-Created on Wed Mar  8 16:38:57 2017
-
-@author: cvasseur
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
->>>>>>> 4be8cc178ee9eb8f398ba59b6f1b0e0a351836f8
 Created on Wed Mar  8 09:23:39 2017
 
 @author: cvasseur
@@ -24,7 +13,7 @@ from importlib import reload
 import xarray as xr
 import datatools
 reload(datatools)
-from datatools_tried import moy_corr
+from datatools_tried import moy_corr, predict_time
 from keras.models import model_from_json
 import numpy as np
 import matplotlib.pyplot as plt
@@ -47,7 +36,7 @@ plt.close("all")
 # nombre d'input ici : t-6, t-5, t-4, t-3, t-2, t-1
 
 #look_back=6 #parametre à modifier dans la fonction prepare data pas ici
-max=10
+max=10 #horizon
 
 
 model = model_from_json(open(os.path.join(outdir,modelname)).read())
@@ -75,11 +64,14 @@ look_back=len(Xapp[0,:,0,0,0])
 corr_av,rmse_av = predict_time(model,Xval1,yval1,max,outdir2,'prediction21joursav.npz')
 corr_av =np.asarray(corr_av)
 rmse_av = np.asarray(rmse_av)
+
 print('Corralation des 21 jours avant aux horizons 1, 2 et 4 :\n', corr_av[0],' | ',corr_av[1],' | ',corr_av[3])
 print('RMSE des 21 jours avant aux horizons 1, 2 et 4 :\n', rmse_av[0],' | ',rmse_av[1],' | ',rmse_av[3])
+
 corr_ap, rmse_ap = predict_time(model,Xval2,yval2,max,outdir2,'prediction21joursap.npz')
 corr_ap =np.asarray(corr_ap)
 rmse_ap = np.asarray(rmse_ap)
+
 print('Corralation des 21 jours apres aux horizons 1, 2 et 4 :\n', corr_ap[0],' | ',corr_ap[1],' | ',corr_ap[3])
 print('RMSE des 21 jours apres aux horizons 1, 2 et 4 :\n', rmse_ap[0],' | ',rmse_ap[1],' | ',rmse_ap[3])
 print('-----------------------------------------------------------------')

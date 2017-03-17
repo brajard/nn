@@ -20,8 +20,15 @@ import matplotlib.pyplot as plt
 import pickle
 
 
-outdir = '../data/nn_bestnet'
-outdir2 = '../data/prediction'
+#outdir = '../data/nn_bestnet'
+#outdir2 = '../data/prediction'
+#save_res = '../data/LSTM'
+outdir = '../data/new_model'
+outdir2 = '../data/prediction_new_model'
+save_res = '../data/Models'
+
+resultat=True
+
 modelname = 'rnn.json'
 weights = 'weights.h5'
 data =  'dataval.npz'
@@ -33,8 +40,7 @@ tosavemat = True
 tosavemodel = True
 
 
-resultat=True
-save_res = '../data/LSTM'
+
 
 plt.close("all")
 

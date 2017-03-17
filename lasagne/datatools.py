@@ -421,8 +421,8 @@ def define_model_all(shape,
     model.add(TimeDistributed(Flatten()))
     model.add(TimeDistributed(Dense(nhid1)))
     model.add(Activation("relu"))
-    model.add(GRU(output_dim=nhid1,return_sequences=False))
-    #model.add(LSTM(output_dim=nhid2,return_sequences=False))
+    #model.add(GRU(output_dim=nhid1,return_sequences=False))
+    model.add(LSTM(output_dim=nhid2,return_sequences=False))
     model.add(Dense(input_dim=nhid2,output_dim=n_feat_out*new_nx*new_ny))
     model.add(Activation("relu"))
     model.add(Reshape((n_feat_out,new_nx,new_ny)))
@@ -444,14 +444,15 @@ def save_data(
     np.savez(os.path.join(outdir,dataval),Xval=data.Xval,yval=data.yval)
 
 
-def make_train(
+def make_train( 
     data,
     cmodel,
     outdir,
+    modelname = 'rnn.json',
+    weights = 'weights.h5',   
     nb_epoch=50,
     tosave = {'history','model','data','scaler'},
-    modelname = 'rnn.json',
-    weights = 'weights.h5',
+
     scaler=None,
     batch_size=256):
  

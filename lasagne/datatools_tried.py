@@ -32,6 +32,14 @@ def new_data(model, data):
     data = xr.merge([Xapp, yapp, Xval, yval])
     return data
 
+def move_data(Xval, prediction,i):
+     size, lookback, npar, nx ,ny = Xval.shape
+        
+     Xval[:,:-1]=Xval[:,1:]
+     Xval[:,-1]=prediction[:,i,:].reshape([size,npar,nx,ny])   
+     
+     return Xval
+    
 def plot_scatterbis(yt,yr):
     #plt.figure()
     #plt.scatter(yt,yr)
@@ -50,7 +58,7 @@ def moy_corr(yv,ypred,horizon):
     return corr/n
 
 # prediction des temps t+1,t+2,t+3 ... t+max
-# sauvegarde des resultats dans le dossier data/prediction/
+# + sauvegarde des resultats dans le dossier data/prediction/
 def predict_time(model,Xval,yval,max,outdir,fname):
     size,lookback,npar,nx,ny = Xval.shape
 
@@ -83,6 +91,17 @@ def predict_time(model,Xval,yval,max,outdir,fname):
     
     return corr, rmse
 
+# prediction pour un modele et calcul de corrélation, rmse
+def predict_model(model,Xval,yval,index):
+    size,lookback,npar,nx,ny = Xval.shape
+    
+    prediction = model.predict(Xval).squeeze()
+    
+    corr = moy_corr(yval,prediction,index+1)
+    rmse = np.sqrt(np.mean((yval-prediction)**2))
+    
+    return prediction, corr, rmse
+    
 def calcul_persistence(Ypers,Yval,max):
     corr_hor=np.zeros(max)
     for j in range(0,max):
@@ -148,6 +167,7 @@ def plot_ligne_prediction(prediction,yval1,l,title,fname):
 def plot_temporelle(prediction,yval1,horizon,title,fname):
     string=[]
     size=len(prediction)
+    
     fig = plt.figure()
     plt.plot(yval1[:,25])
     string.append('truth')    
