@@ -9,8 +9,10 @@ import pandas as pd
 import xarray as xr
 from sklearn import preprocessing
 from keras.models import Sequential  
+
 from keras.layers.core import Dense, Activation, Flatten, Reshape, Dropout
 from keras.layers.recurrent import SimpleRNN, LSTM, GRU
+
 from keras.layers.pooling import MaxPooling2D
 #from keras.layers.extra import TimeDistributedFlatten,TimeDistributedConvolution2D
 from keras.layers.wrappers import TimeDistributed
@@ -407,7 +409,6 @@ def define_model_all(shape,
                      lr=0.01):
     
     nt,n_prev,npar,nx,ny = shape                 
-    #in_out_neurons = nx*ny
 
     new_nx = nx//pool_size[0]
     new_ny = ny//pool_size[1]
@@ -427,7 +428,7 @@ def define_model_all(shape,
     model.add(Reshape((n_feat_out,new_nx,new_ny)))
     model.add(Deconvolution2D(1,filter_size_out,filter_size_out,output_shape=(None,1,nx,ny),subsample=pool_size,border_mode='valid'))
     model.add(Activation("linear"))
-    model.add(Flatten())    
+    model.add(Flatten())
     optimizer = rmsprop(lr=lr)
     model.compile(loss="mean_squared_error",optimizer=optimizer)
     return model
@@ -464,10 +465,6 @@ def make_train(
         history = cmodel.history_
         model = cmodel.nn_
         
-
-    
-    #datatrain =  'datatrain.npz'
-    #dataval = 'dataval.npz'
     os.makedirs(outdir,exist_ok=True)
     if 'history' in tosave:
         pickle.dump(history2dict(history), open(os.path.join(outdir,'history.p'), "wb" ))
@@ -479,7 +476,7 @@ def make_train(
         pickle.dump(scaler,open(os.path.join(outdir,'scaler.p'),"wb"))
     if 'data' in tosave:
         save_data(data,outdir)
-    
+
     return model
 
 def nweights(nn):

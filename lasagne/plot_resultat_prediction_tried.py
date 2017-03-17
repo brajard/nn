@@ -5,16 +5,20 @@ Created on Thu Mar  9 10:40:05 2017
 
 @author: cvasseur
 """
+
 #!/usr/bin/env python
 # script affichage des resultats obtenues pour une prédiction jusqu'à t+max
+
 import os
 from importlib import reload
 import datatools
 reload(datatools)
+
 from datatools_tried import plot_horizon, plot_ligne_prediction, plot_temporelle, calcul_persistence
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
+
 
 outdir = '../data/nn_bestnet'
 outdir2 = '../data/prediction'
@@ -27,6 +31,7 @@ histname = 'history.p'
 tosave = True
 tosavemat = True
 tosavemodel = True
+
 
 resultat=True
 save_res = '../data/LSTM'
@@ -45,9 +50,11 @@ prediction_ap = npzfile['prediction']
 corr_ap = npzfile['corr']
 rmse_ap = npzfile['rmse']
 
+
 npzfile = np.load(os.path.join(outdir,data))
 Xapp = npzfile['Xval']
 yapp = npzfile['yval']
+
 
 # étude faite sur les 21 jours avant et 21 jours apres 
 Xval1 = Xapp[0:504,:]
@@ -108,4 +115,5 @@ if resultat:
         
     
     plt.show()
+
         
