@@ -5,8 +5,8 @@ Created on Wed Mar  8 17:47:39 2017
 
 @author: cvasseur
 """
-
-from __future__ import print_function
+from matplotlib import gridspec
+#from __future__ import print_function
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,13 +22,15 @@ def new_data(model, data):
     
     Xapp = xr.DataArray(data.Xapp[:size-1,:])
     Xapp.name = 'Xapp'
-    yapp = xr.DataArray(data.yapp[:size-1,:])
+    yapp = xr.DataArray(data.yapp[1:,:])
     yapp.name = 'yapp'
     Xval = xr.DataArray(data.Xval)
     Xval.name = 'Xval'
     yval = xr.DataArray(data.yval)
     yval.name = 'yval'
-        
+    
+    Xapp['dates']=yapp['dates']
+    
     data = xr.merge([Xapp, yapp, Xval, yval])
     return data
 
@@ -49,6 +51,14 @@ def plot_scatterbis(yt,yr):
     print ("rmse=",rmse)
     return corr[0,1],rmse
 
+def moy_rmse(yv, ypred, horizon):
+    rmse=0
+    n=0
+    for i in range(0,len(ypred)-horizon+1):
+        rmse=rmse+np.sqrt(np.mean((yv[i+horizon-1]-ypred[i])**2))
+        n=n+1
+    return rmse/n
+
 def moy_corr(yv,ypred,horizon):
     corr=0
     n=0
@@ -56,6 +66,41 @@ def moy_corr(yv,ypred,horizon):
         corr=corr+np.corrcoef(ypred[i],yv[i+horizon-1])[1,0]
         n=n+1
     return corr/n
+
+def jointPlot(ypred,fname,title):
+    x = np.zeros(7)
+    y = np.zeros(7)
+    bins=np.arange(7)
+    
+    for i in range(0,7):
+        x[i] = np.mean(ypred[i,:])
+        y[i] = np.mean(ypred[:,i])    
+        
+    #Define grid for subplots
+    gs = gridspec.GridSpec(2, 2, width_ratios=[3, 1], height_ratios = [1, 4])
+
+    #Create img plot
+    fig = plt.figure(facecolor='white')
+    ax = plt.subplot(gs[1, 0],frameon = False)
+    plt.imshow(ypred)
+    plt.colorbar(orientation ='vertical')
+    ax.grid(True)
+    #Create Y-marginal (right)
+    axr = plt.subplot(gs[1, 1], sharey=ax, frameon = False,xticks = [] ) #xlim=(0, 1), ylim = (ymin, ymax) xticks=[], yticks=[]
+    axr.barh(bins,x, color = '#5673E0')
+
+    #Create X-marginal (top)
+    axt = plt.subplot(gs[0,0], sharex=ax,frameon = False,yticks = [])# xticks = [], , ) #xlim = (xmin, xmax), ylim=(0, 1)
+    axt.bar(bins,y, color = '#5673E0')
+
+    axt.set_title(title)
+    ax.set_xlabel('pixels')
+    ax.set_ylabel('pixels')
+
+    #Bring the marginals closer to the scatter plot
+    fig.tight_layout(pad = 1)
+    plt.show()
+    fig.savefig(fname)
 
 # prediction des temps t+1,t+2,t+3 ... t+max
 # + sauvegarde des resultats dans le dossier data/prediction/
@@ -75,7 +120,8 @@ def predict_time(model,Xval,yval,max,outdir,fname):
     rmse = np.zeros(max)
     for i in range(0,max):
         corr[i] = moy_corr(yval,prediction[:,i],i+1)
-        rmse[i] = np.sqrt(np.mean((yval-prediction[:,i])**2))
+        rmse[i] = moy_rmse(yval, prediction[:,i],i+1)
+        #rmse[i] = np.sqrt(np.mean((yval-prediction[:,i])**2))
     
     # sauvegarde des fichiers
     prediction=xr.DataArray(prediction)
@@ -89,7 +135,7 @@ def predict_time(model,Xval,yval,max,outdir,fname):
     os.makedirs(outdir,exist_ok=True)
     np.savez(os.path.join(outdir,fname),prediction=data.prediction,corr=data.correlation, rmse=data.rmse)
     
-    return corr, rmse
+    return corr, rmse, prediction
 
 # prediction pour un modele et calcul de corrélation, rmse
 def predict_model(model,Xval,yval,index):
@@ -98,7 +144,7 @@ def predict_model(model,Xval,yval,index):
     prediction = model.predict(Xval).squeeze()
     
     corr = moy_corr(yval,prediction,index+1)
-    rmse = np.sqrt(np.mean((yval-prediction)**2))
+    rmse = moy_rmse(yval, prediction,index+1)
     
     return prediction, corr, rmse
     
@@ -149,7 +195,7 @@ def plot_ligne_prediction(prediction,yval1,l,title,fname):
         plt.xlabel('pixels')
         plt.ylabel('quantité de sable')
         plt.title(title)
-    if l < max :
+    if l <= max :
         fig = plt.figure()
         plt.plot(yval1[l-1])
         string.append('truth')        
@@ -171,11 +217,13 @@ def plot_temporelle(prediction,yval1,horizon,title,fname):
     fig = plt.figure()
     plt.plot(yval1[:,25])
     string.append('truth')    
-    for i in range(0,horizon):
-        a=np.zeros(size)
-        a[i:size]=prediction[0:size-i,i,25]
-        plt.plot(a)
-        string.append('horizon ' + str(i+1))
+    if 1:
+        for i in range(0,horizon):
+            a=np.zeros(size)
+            a[i:size]=prediction[0:size-i,i,25]
+            plt.plot(a)
+            string.append('horizon ' + str(i+1))
+    
     plt.legend(string)
     plt.xlabel('temps')
     plt.ylabel('concentration')

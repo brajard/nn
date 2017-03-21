@@ -421,7 +421,6 @@ def define_model_all(shape,
     model.add(TimeDistributed(Flatten()))
     model.add(TimeDistributed(Dense(nhid1)))
     model.add(Activation("relu"))
-    #model.add(GRU(output_dim=nhid1,return_sequences=False))
     model.add(LSTM(output_dim=nhid2,return_sequences=False))
     model.add(Dense(input_dim=nhid2,output_dim=n_feat_out*new_nx*new_ny))
     model.add(Activation("relu"))

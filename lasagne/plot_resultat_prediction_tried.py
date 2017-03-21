@@ -40,8 +40,6 @@ tosavemat = True
 tosavemodel = True
 
 
-
-
 plt.close("all")
 
 # chargement des predictions obtenues : 21 jours avant
