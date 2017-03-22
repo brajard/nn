@@ -19,10 +19,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
-
+# execution pour LSTM seul (1 apprentissage)
 #outdir = '../data/nn_bestnet'
 #outdir2 = '../data/prediction'
 #save_res = '../data/LSTM'
+# execution pour LSTM avec plusieurs apprentissage
 outdir = '../data/new_model'
 outdir2 = '../data/prediction_new_model'
 save_res = '../data/Models'

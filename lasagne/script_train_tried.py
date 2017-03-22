@@ -15,6 +15,8 @@ import datatools_tried
 reload(datatools_tried)
 import datatools
 reload(datatools)
+import deepnn 
+reload(deepnn)
 from deepnn import kerasnn
 from datatools_tried import new_data
 from datatools import prepare_data, make_train
@@ -38,19 +40,18 @@ params = {'n_feat_in_': 5, 'network_type_': 'all', 'n_feat_out_': 9, 'nhid2_': 1
 #all_model = np.array([kerasnn for _ in range(nmodel)])
 np_epoch=200
 for i in range(0,nmodel):
-#    if i==1:
-#        np_epoch=30
+    if i ==0:
+        cmodel = kerasnn(shapef_=data.Xval.shape[1:],nb_epoch_=np_epoch)
+        cmodel.set_params(**params)
     
-    model = kerasnn(shapef_=data.Xval.shape[1:],nb_epoch_=np_epoch)
-    model.set_params(**params)
-    
+    if i==1:
+        cmodel.set_params(nb_epoch_=30)
+        
     modelname = 'rnn_app'+str(i+1)+'.json'
     weights = 'weights_app'+str(i+1)+'.h5'
     
-    print(data.yapp.shape)
-    print(data.Xapp.shape)
-    
-    model = make_train(data,model,outdir,modelname, weights)
+    cmodel = make_train(data,cmodel,outdir,modelname, weights)
+    model=cmodel.nn_
 
     #modified input
     data = new_data(model, data)

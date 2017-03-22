@@ -454,7 +454,7 @@ def make_train(
 
     scaler=None,
     batch_size=256):
- 
+    
     if 'Sequential' in str(type(cmodel)):
         model = cmodel
         history = model.fit(data.Xapp,data.yapp,batch_size=batch_size,nb_epoch=nb_epoch,validation_split=0.05)
@@ -477,7 +477,7 @@ def make_train(
     if 'data' in tosave:
         save_data(data,outdir)
 
-    return model
+    return cmodel
 
 def nweights(nn):
     return sum([w.size for w in nn.get_weights()])

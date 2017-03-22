@@ -12,6 +12,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 import xarray as xr
 
+def create_new_data(data,data2):
+    Xapp = np.concatenate((data.Xapp,data2.Xapp),axis=0)
+    yapp = np.concatenate((data.yapp,data2.yapp),axis=0)
+    #dates = np.concatenate((data.Xapp.dates,data2.Xapp.dates),axis=0)
+    
+    Xapp = xr.DataArray(Xapp)
+    Xapp.name = 'Xapp'
+    yapp = xr.DataArray(yapp)
+    yapp.name = 'yapp'
+    Xval = xr.DataArray(data.Xval)
+    Xval.name = 'Xval'
+    yval = xr.DataArray(data.yval)
+    yval.name = 'yval'
+    
+    res=xr.merge([Xapp,yapp,Xval,yval])
+    return res
+    
 def new_data(model, data):
     size, lookback, npar, nx ,ny = data.Xapp.shape
     

@@ -12,7 +12,7 @@ from importlib import reload
 import xarray as xr
 import datatools
 reload(datatools)
-from datatools_tried import move_data,predict_model
+from datatools_tried import move_data,predict_model, jointPlot
 from keras.models import model_from_json
 import numpy as np
 import matplotlib.pyplot as plt
@@ -71,7 +71,17 @@ for i in range(0,nb_model):
     prediction_av[:,i,:], corr_av[i], rmse_av[i] = predict_model(model,Xval1,yval1,i)
     prediction_ap[:,i,:],corr_ap[i], rmse_ap[i] = predict_model(model,Xval2, yval2, i)
     
-print(rmse_ap[0])
+    
+fname='../data/LSTM/imgplot_pred_hor1.png'
+title='Le 9 décembre 2008 entre 12h et 13h (horizon 1)'
+jointPlot(np.asarray(prediction_ap[6,0,:]).reshape([7,7]),fname,title)
+fname='../data/LSTM/imgplot_truth.png'
+title='Le 9 décembre 2008 entre 12h et 13h (truth)'
+jointPlot(yval2[6].reshape([7,7]),fname,title)
+fname='../data/LSTM/imgplot_pred_hor6.png'
+title='Le 9 décembre 2008 entre 12h et 13h (horizon 6)'
+jointPlot(np.asarray(prediction_ap[0,6,:]).reshape([7,7]),fname,title)
+
 # save results 
 # res des 21 jours avant :
 prediction=xr.DataArray(prediction_av)

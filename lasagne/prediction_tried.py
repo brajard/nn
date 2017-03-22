@@ -58,7 +58,6 @@ Xval2 = Xapp[504:1008,:]
 yval1 =yapp[0:504,:]
 yval2 =yapp[504:1008,:]
 
-
 look_back=len(Xapp[0,:,0,0,0])
 
 # prediction des 21 jours avants et enregistrement des fichiers

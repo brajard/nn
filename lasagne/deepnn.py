@@ -55,12 +55,14 @@ class kerasnn (BaseEstimator, RegressorMixin):
         self.init_=init_
         self.lr_=lr_
         self.network_type_=network_type_
+        self.nn_is_set = False
         self.paramset_ = {'shapef_','n_feat_in_','filter_size_in_','n_feat_out_','filter_size_out_','nhid1_',
                           'nhid2_','init_','pool_size_',
                           'batch_size_','nb_epoch_','validation_split_','lr_','network_type_'}
 
     def reshape(self,X):
         self.set_shape(X.shape)
+            
         self.XX_ = X.reshape(self.shape_)
         
     def set_shape(self,shapex=None):
@@ -118,8 +120,10 @@ class kerasnn (BaseEstimator, RegressorMixin):
         X, y = check_X_y(X,y,multi_output=True)
         self.reshape(X) #compute self.XX_
         self.y_ = y
-        self.set_model()
-  
+        if not self.nn_is_set:
+            self.set_model()
+            self.nn_is_set = True
+        
         self.history_ = self.nn_.fit(self.XX_,self.y_,batch_size=self.batch_size_,\
                                   nb_epoch=self.nb_epoch_,\
                                   validation_split=self.validation_split_,verbose=verbose)
@@ -137,8 +141,12 @@ class kerasnn (BaseEstimator, RegressorMixin):
         return {name:getattr(self,name) for name in self.paramset_}
 
     def set_params(self,**parameters):
+        conservative_parameters = {'lr_','batch_size_'} #parameter that do not need a reinit
         for parameter, value in parameters.items():
             if not parameter in self.paramset_:
                 raise ValueError ("Parameter '"+parameter+"' is not in the admissible list")
             setattr(self,parameter,value)
+            if not parameter in conservative_parameters:
+                self.nn_is_set = False
+                
         return self
