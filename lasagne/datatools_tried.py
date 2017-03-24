@@ -12,32 +12,54 @@ import numpy as np
 import matplotlib.pyplot as plt
 import xarray as xr
 
-def create_new_data(data,data2):
+def update_data(data, data2, model):
+    size, lookback, npar, nx ,ny = data2.Xapp.shape
+    
+    prediction = model.predict(data.Xapp).squeeze()
+    
+    data2.Xapp[:,-1]=prediction[:size].reshape([size,1,nx,ny])
+    
+    return data2
+    
+def concat_data(data,data2):
     Xapp = np.concatenate((data.Xapp,data2.Xapp),axis=0)
     yapp = np.concatenate((data.yapp,data2.yapp),axis=0)
-    #dates = np.concatenate((data.Xapp.dates,data2.Xapp.dates),axis=0)
     
+    dates = np.concatenate((data.Xapp.dates,data2.Xapp.dates),axis=0)
+    #dates[10746:]=dates[10746:]+np.timedelta64(365,'D')*np.ones(10745)*2
     Xapp = xr.DataArray(Xapp)
     Xapp.name = 'Xapp'
+    Xapp['dim_0']=dates
+    Xapp=Xapp.rename({'dim_0':'dates','dim_1':'seq','dim_2':'parameters','dim_3':'xind','dim_4':'yind'})
+    Xapp['parameters']=data.Xapp.parameters
+    
     yapp = xr.DataArray(yapp)
     yapp.name = 'yapp'
+    yapp['dim_0']=dates
+    yapp=yapp.rename({'dim_0':'dates','dim_1':'pixind'})
+    
     Xval = xr.DataArray(data.Xval)
     Xval.name = 'Xval'
     yval = xr.DataArray(data.yval)
     yval.name = 'yval'
     
+    yapp['pixind']=yval.pixind
+    
     res=xr.merge([Xapp,yapp,Xval,yval])
     return res
     
 def new_data(model, data):
+    #ajoute les valeurs préduites dans Xapp
     size, lookback, npar, nx ,ny = data.Xapp.shape
     
     prediction = model.predict(data.Xapp).squeeze()
     
-    data.Xapp[:,:-1]=data.Xapp[:,1:]
-    data.Xapp[:,-1]=prediction[:,:].reshape([size,1,nx,ny])    
+    Xapp=data.Xapp.copy()
     
-    Xapp = xr.DataArray(data.Xapp[:size-1,:])
+    Xapp[:,:-1]=data.Xapp[:,1:]
+    Xapp[:,-1]=prediction[:,:].reshape([size,npar,nx,ny])
+    
+    Xapp = xr.DataArray(Xapp[:size-1,:])
     Xapp.name = 'Xapp'
     yapp = xr.DataArray(data.yapp[1:,:])
     yapp.name = 'yapp'

@@ -5,6 +5,12 @@ Created on Fri Mar 17 10:04:40 2017
 
 @author: cvasseur
 """
+
+## --------------------------------------
+## COMPUTE PREDICTION FOR h PREDICTIONS
+## -------------------------------------
+
+
 #!/usr/bin/env python
 import os
 from importlib import reload
@@ -18,8 +24,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.utils.visualize_util import plot
 
+# different models
 outdir = '../data/new_model'
 outdir2 = '../data/prediction_new_model'
+
+#save visu data plot histogram
+direction='../data/Models/'
 
 data =  'dataval.npz'
 histname = 'history.p'
@@ -45,8 +55,8 @@ yval2 =yval[504:1008,:]
 # nombre d'input ici : t-6, t-5, t-4, t-3, t-2, t-1
 
 #look_back=6 #parametre à modifier dans la fonction prepare data pas ici
-max=10 #horizon
-nb_model=10
+max=100 #horizon
+nb_model=max #meme nombre d'horizon que de modeles
 
 size, lookback, npar, nx ,ny = Xval.shape
 prediction_av = np.zeros((504,max,yval.shape[1]))
@@ -71,14 +81,13 @@ for i in range(0,nb_model):
     prediction_av[:,i,:], corr_av[i], rmse_av[i] = predict_model(model,Xval1,yval1,i)
     prediction_ap[:,i,:],corr_ap[i], rmse_ap[i] = predict_model(model,Xval2, yval2, i)
     
-    
-fname='../data/LSTM/imgplot_pred_hor1.png'
+fname=direction+'imgplot_pred_hor1.png'
 title='Le 9 décembre 2008 entre 12h et 13h (horizon 1)'
 jointPlot(np.asarray(prediction_ap[6,0,:]).reshape([7,7]),fname,title)
-fname='../data/LSTM/imgplot_truth.png'
+fname=direction+'imgplot_truth.png'
 title='Le 9 décembre 2008 entre 12h et 13h (truth)'
 jointPlot(yval2[6].reshape([7,7]),fname,title)
-fname='../data/LSTM/imgplot_pred_hor6.png'
+fname=direction+'imgplot_pred_hor6.png'
 title='Le 9 décembre 2008 entre 12h et 13h (horizon 6)'
 jointPlot(np.asarray(prediction_ap[0,6,:]).reshape([7,7]),fname,title)
 

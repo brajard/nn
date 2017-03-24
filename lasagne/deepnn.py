@@ -84,7 +84,7 @@ class kerasnn (BaseEstimator, RegressorMixin):
             raise ValueError('invalid shape for model type')
         if ( self.network_type_ == 'dense' or self.network_type_ == 'conv') and not len(self.shape_) == 4:
             raise ValueError('invalid shape for model type')
-        
+
         if self.network_type_ == 'all':
             self.nn_ = define_model_all(shape = self.shape_,
                                         n_feat_in=self.n_feat_in_, n_feat_out=self.n_feat_out_,
@@ -141,7 +141,7 @@ class kerasnn (BaseEstimator, RegressorMixin):
         return {name:getattr(self,name) for name in self.paramset_}
 
     def set_params(self,**parameters):
-        conservative_parameters = {'lr_','batch_size_'} #parameter that do not need a reinit
+        conservative_parameters = {'lr_','batch_size_','nb_epoch_'} #parameter that do not need a reinit
         for parameter, value in parameters.items():
             if not parameter in self.paramset_:
                 raise ValueError ("Parameter '"+parameter+"' is not in the admissible list")

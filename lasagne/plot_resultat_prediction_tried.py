@@ -6,6 +6,12 @@ Created on Thu Mar  9 10:40:05 2017
 @author: cvasseur
 """
 
+####---------------------------------------------------######
+## PLOT RESULT FOR ALL STRUCTURE JUST DEPENDS OF THE 
+## STRUCTURE OF THE PREDICTION MATRIX
+###----------------------------------------------------########
+
+
 #!/usr/bin/env python
 # script affichage des resultats obtenues pour une prédiction jusqu'à t+max
 
@@ -24,9 +30,13 @@ import pickle
 #outdir2 = '../data/prediction'
 #save_res = '../data/LSTM'
 # execution pour LSTM avec plusieurs apprentissage
-outdir = '../data/new_model'
-outdir2 = '../data/prediction_new_model'
-save_res = '../data/Models'
+#outdir = '../data/new_model'
+#outdir2 = '../data/prediction_new_model'
+#save_res = '../data/Models'
+# h learnings but 1 model
+outdir = '../data/complete_model'
+outdir2 = '../data/complete_model/prediction'
+save_res = '../data/complete_model/results'
 
 resultat=True
 
