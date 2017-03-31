@@ -30,3 +30,4 @@ model = kerasnn(shapef_=data.Xval.shape[1:],nb_epoch_=200)
 
 model.set_params(**params)
 make_train(data,model,outdir)
+

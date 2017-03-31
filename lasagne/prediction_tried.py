@@ -6,6 +6,10 @@ Created on Wed Mar  8 09:23:39 2017
 @author: cvasseur
 """
 
+#######################################################################
+### run prediction (corr and rmse) for model 1 and model 3 #########
+######################################################################
+
 #!/usr/bin/env python
 import os
 from importlib import reload
@@ -20,17 +24,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.utils.visualize_util import plot
 
-# prediction h horizon with same model (base model)
-outdir = '../data/nn_bestnet'
-outdir2 = '../data/prediction'
+# Which model you want to run ? Model 1 or model 3 ?
+Model1 = False
+Model3 = True
 
-#prediction h horizon with advanced model (model with convergence of predictions)
-#outdir = '../data/complete_model'
-#outdir2 = '../data/complete_model/prediction'
 
-# save place of img histogram results
-#directory = '../data/complete_model/results/'
-directory = '../data/LSTM/'
+if Model1 :
+    # prediction h horizon with same model (base model) -> Model 1
+    outdir = '../data/nn_bestnet'
+    outdir2 = '../data/prediction'
+    # save place of img histogram results
+    directory = '../data/LSTM/' # Model 1
+
+if Model3 :
+    #prediction h horizon with advanced model (model with convergence of predictions) -> Model 3 
+    outdir = '../data/complete_model'
+    outdir2 = '../data/complete_model/prediction'
+
+    # save place of img histogram results
+    directory = '../data/complete_model/results/' # Model 3
 
 modelname = 'rnn.json'
 weights = 'weights.h5'
@@ -80,16 +92,18 @@ corr_ap, rmse_ap, prediction_ap = predict_time(model,Xval2,yval2,max,outdir2,'pr
 corr_ap =np.asarray(corr_ap)
 rmse_ap = np.asarray(rmse_ap)
 
+print(corr_ap)
+
 fname=directory+'imgplot_pred_hor1.png'
-#yval2.datesVal[6]
-title='Le 9 décembre 2008 entre 12h et 13h (horizon 1)'
-jointPlot(np.asarray(prediction_ap[6,0,:]).reshape([7,7]),fname,title)
+#yval2.datesVal[2]
+title='Le 9 décembre 2008 entre 10h et 11h (horizon 1)'
+jointPlot(np.asarray(prediction_ap[2,0,:]).reshape([7,7]),fname,title)
 fname=directory+'imgplot_truth.png'
-title='Le 9 décembre 2008 entre 12h et 13h (truth)'
-jointPlot(yval2[6].reshape([7,7]),fname,title)
+title='Le 9 décembre 2008 entre 10h et 11h (truth)'
+jointPlot(yval2[2].reshape([7,7]),fname,title)
 fname=directory+'imgplot_pred_hor6.png'
-title='Le 9 décembre 2008 entre 12h et 13h (horizon 6)'
-jointPlot(np.asarray(prediction_ap[0,6,:]).reshape([7,7]),fname,title)
+title='Le 9 décembre 2008 entre 10h et 11h (horizon 3)'
+jointPlot(np.asarray(prediction_ap[0,2,:]).reshape([7,7]),fname,title)
 
 #print('Corralation des 21 jours apres aux horizons 1, 2 et 4 :\n', corr_ap[0],' | ',corr_ap[1],' | ',corr_ap[3])
 #print('RMSE des 21 jours apres aux horizons 1, 2 et 4 :\n', rmse_ap[0],' | ',rmse_ap[1],' | ',rmse_ap[3])

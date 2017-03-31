@@ -7,7 +7,7 @@ Created on Fri Mar 17 10:04:40 2017
 """
 
 ## --------------------------------------
-## COMPUTE PREDICTION FOR h PREDICTIONS
+## COMPUTE PREDICTION FOR h PREDICTIONS (with h models) -> Model 2
 ## -------------------------------------
 
 
@@ -24,11 +24,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.utils.visualize_util import plot
 
-# different models
+# load results of different models
 outdir = '../data/new_model'
 outdir2 = '../data/prediction_new_model'
 
-#save visu data plot histogram
+#save visualization of images plot histogram
 direction='../data/Models/'
 
 data =  'dataval.npz'
@@ -55,7 +55,7 @@ yval2 =yval[504:1008,:]
 # nombre d'input ici : t-6, t-5, t-4, t-3, t-2, t-1
 
 #look_back=6 #parametre à modifier dans la fonction prepare data pas ici
-max=100 #horizon
+max=10 #horizon
 nb_model=max #meme nombre d'horizon que de modeles
 
 size, lookback, npar, nx ,ny = Xval.shape
@@ -81,6 +81,9 @@ for i in range(0,nb_model):
     prediction_av[:,i,:], corr_av[i], rmse_av[i] = predict_model(model,Xval1,yval1,i)
     prediction_ap[:,i,:],corr_ap[i], rmse_ap[i] = predict_model(model,Xval2, yval2, i)
     
+    
+print(corr_ap)
+
 fname=direction+'imgplot_pred_hor1.png'
 title='Le 9 décembre 2008 entre 12h et 13h (horizon 1)'
 jointPlot(np.asarray(prediction_ap[6,0,:]).reshape([7,7]),fname,title)

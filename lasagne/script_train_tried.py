@@ -7,7 +7,7 @@ Created on Wed Mar 15 15:03:39 2017
 """
 
 #!/usr/bin/env python
-### Script to run a complete experiment
+### Script to run a complete experiment (Modèle 2)
 
 ## Import libraries
 from importlib import reload
@@ -31,7 +31,7 @@ fname = 'MATRICE_01_2017.mat'
 geofile = 'USABLE_PointbyPoint_01_2017.mat'
 data,scaler = prepare_data(datadir=datadir,fname=fname,geofile=geofile,lognorm=True,epsi=0.0001,nseq=6,smNum = [44,55,66,77,88,99,110], uvNum=[])
 
-nmodel = 100
+nmodel = 3
 # new params
 params = {'n_feat_in_': 5, 'network_type_': 'all', 'n_feat_out_': 9, 'nhid2_': 12, 'nhid1_': 12}
 # old params

@@ -25,18 +25,26 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
-# execution pour LSTM seul (1 apprentissage)
-#outdir = '../data/nn_bestnet'
-#outdir2 = '../data/prediction'
-#save_res = '../data/LSTM'
-# execution pour LSTM avec plusieurs apprentissage
-#outdir = '../data/new_model'
-#outdir2 = '../data/prediction_new_model'
-#save_res = '../data/Models'
+# For which model do you want to visualize results ?
+Model1=False
+Model2=True
+Model3=False
+
+if Model1:
+    # execution pour LSTM seul (1 apprentissage)
+    outdir = '../data/nn_bestnet'
+    outdir2 = '../data/prediction'
+    save_res = '../data/LSTM'
+if Model2:
+    # execution pour LSTM avec plusieurs apprentissage
+    outdir = '../data/new_model'
+    outdir2 = '../data/prediction_new_model'
+    save_res = '../data/Models'
 # h learnings but 1 model
-outdir = '../data/complete_model'
-outdir2 = '../data/complete_model/prediction'
-save_res = '../data/complete_model/results'
+if Model3:
+    outdir = '../data/complete_model'
+    outdir2 = '../data/complete_model/prediction'
+    save_res = '../data/complete_model/results'
 
 resultat=True
 
@@ -122,7 +130,7 @@ if resultat:
     # series temporelles des différents horizons (colonne de la matrice)
     title='Séries chonologiques 21 jours avant (pixel central)'
     fname=save_res+'/tempo_avant.png'
-    horizon=4
+    horizon=3
     plot_temporelle(prediction_av,yval1,horizon,title,fname)
     title='Séries chonologiques 21 jours apres (pixel central)'
     fname=save_res+'/tempo_après.png'

@@ -5,8 +5,9 @@ Created on Wed Mar 22 13:32:55 2017
 
 @author: cvasseur
 """
-
-## Script complete deep learning model : 1 model
+#################################
+## Run model 3 (learning)  #####
+################################
 
 ## Import libraries
 from importlib import reload
@@ -35,9 +36,9 @@ data,scaler = prepare_data(datadir=datadir,fname=fname,geofile=geofile,lognorm=T
 size, lookback, npar, nx ,ny = data.Xapp.shape
     
 #nb_it : nomber of iteration to stabilize the model (part 2 of learning)
-nb_it = 10
-nb_epoch_first = 50
-nb_epoch_next = 20
+nb_it = 20
+nb_epoch_first = 15
+nb_epoch_next = 5
 nb_epoch_conv = 5
 params = {'n_feat_in_': 5, 'network_type_': 'all', 'n_feat_out_': 9, 'nhid2_': 12, 'nhid1_': 12}
 
