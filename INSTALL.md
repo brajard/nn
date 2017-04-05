@@ -1,6 +1,15 @@
 INSTALLATION OF NN PROJECT
 ==========================
 
+Installing Anaconda
+-------------------
+After downloading the Anaconda installer, run the following command from a terminal:
+```Shell
+$ bash Anaconda-2.x.x-Linux-x86[_64].sh
+```
+You then need to edit your .bashrc file to include the ECHO $PATH of where you installed Anaconda.
+You normally get notified about this at the end of the instalation.
+
 Using Conda
 -----------
 * `conda create --name nn python=3`
