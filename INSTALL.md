@@ -16,6 +16,7 @@ Using Conda
 * `pip install sklearn`
 * `pip install h5py`
 * `conda install mkl-service`
+* `conda install netCDF4`
 * for visualization :
   * `pip install pydot-ng`
   * `conda install graphviz`
