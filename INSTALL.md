@@ -51,7 +51,20 @@ fastmath = True
 Using GPU
 ---------
 * Modify your `$HOME/.theanorc` file:
+```Shell
+[global]
+floatX = float32
+device = gpu
 
+[nvcc]
+fastmath = True
+
+[lib]
+cnmem = 1
+
+[dnn]
+enabled = True
+```
 * Modify your `$HOME/.bashrc`file to add the path and library path of cuda :
 e.g
 ```
