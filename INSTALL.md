@@ -47,3 +47,15 @@ fastmath = True
 }
 ```
 * Test if it works : `./script_train_test.py`
+
+Using GPU
+---------
+* Modify your `$HOME/.theanorc` file:
+
+* Modify your `$HOME/.bashrc`file to add the path and library path of cuda :
+e.g
+```
+export CPATH="/usr/local/cuda/include:$CPATH"
+export PATH="/usr/local/cuda/bin:$PATH"
+export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+
