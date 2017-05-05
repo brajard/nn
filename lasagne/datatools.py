@@ -18,12 +18,13 @@ from keras.layers.convolutional import Deconvolution2D,Convolution2D
 import theano
 import pickle
 from keras.optimizers import rmsprop
+from datetime import datetime
 
 colindex = [str(i) for i in range(136)]
 colindex[134]='ubar'
 colindex[135]='vbar'
 
-def normalize (X,scaler=preprocessing.StandardScaler,fit=True,parname = 'parameters'):
+def normalize (X,scaler=preprocessing.StandardScaler(),fit=True,parname = 'parameters'):
     z = [c for c in X.coords.dims if c != parname]
     stacked = X.stack(z=z).T
     if fit:
@@ -223,6 +224,8 @@ def history2dict(history):
     return {'history':history.history,'params':history.params,'epoch':history.epoch}
     
 
+
+
 def prepare_data(
     smNum=[77],
     uvNum=[134,135],
@@ -406,7 +409,7 @@ def define_model_all(shape,
                      pool_size=(2,2),
                      lr=0.01):
     
-    nt,n_prev,npar,nx,ny = shape                 
+    nt,n_prev,npar,nx,ny = shape
     in_out_neurons = nx*ny
 
     new_nx = nx//pool_size[0]
@@ -457,7 +460,7 @@ def make_train(
         history = model.fit(data.Xapp,data.yapp,batch_size=batch_size,nb_epoch=nb_epoch,validation_split=0.05)
     elif 'kerasnn' in str(type(cmodel)):
         X = data.Xapp.stack(z=data.Xval.dims[1:])
-        y = data.yapp
+        y = data.yapp.squeeze()
         cmodel.fit(X,y,verbose=1)
         history = cmodel.history_
         model = cmodel.nn_
@@ -482,3 +485,14 @@ def make_train(
 
 def nweights(nn):
     return sum([w.size for w in nn.get_weights()])
+
+#%% decimal year
+def ts_to_dec(ts):
+    return  np.array([dt_to_dec(dt) for dt in ts])
+
+def dt_to_dec(dt):
+    """Convert a datetime to decimal year."""
+    year_start = datetime(dt.year, 1, 1)
+    year_end = year_start.replace(year=dt.year+1)
+    return ((dt - year_start).total_seconds() /  # seconds so far
+        float((year_end - year_start).total_seconds()))  # seconds in year
