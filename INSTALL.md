@@ -18,7 +18,7 @@ Using Conda
 * `pip install scipy`
 * `pip install numpy`
 * `pip install pandas`
-* `pip install xarray`
+* `conda install xarray dask netCDF4 bottleneck`
 * `pip install matplotlib`
 * `pip install --upgrade https://github.com/Theano/Theano/archive/master.zip`
 * `pip install keras`
