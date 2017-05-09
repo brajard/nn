@@ -9,15 +9,16 @@ Created on Wed May  3 17:30:24 2017
 import xarray as xr
 import os
 import numpy as np
-from datatools import load_sequence,normalize
+from datatools import load_sequence,normalize, save_nc
 from sklearn import preprocessing
+import pickle
 
 #%% prepare_data_sst
 nseq = 6
 first_time = 2*30
 datadir = '../data'
 fname = 'sst_norm.nc'
-outname = 'data_sst_keras.nc'
+outname = 'data_sst_keras'
 Xtmp = xr.open_dataset(os.path.join(datadir,fname))
 data_names = [k for k in Xtmp.data_vars]
 L = [Xtmp[fname] for fname in data_names]
@@ -79,10 +80,5 @@ data = xr.merge([Xapp,yapp,Xval,yval])
 
 
 #%% Save
-npix = data.dims['pixind']
-#TODO save match btw multiindex and simple index
-data['pixind']=np.arange(npix)
-data['dates_app']=np.arange(data.dims['dates_app'])
-data['dates_val']=np.arange(data.dims['dates_val'])
+save_nc(data,os.path.join(datadir,outname))
 
-data.to_netcdf(os.path.join(datadir,outname))

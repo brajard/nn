@@ -496,3 +496,35 @@ def dt_to_dec(dt):
     year_end = year_start.replace(year=dt.year+1)
     return ((dt - year_start).total_seconds() /  # seconds so far
         float((year_end - year_start).total_seconds()))  # seconds in year
+
+#%% nertcdf IO
+
+def save_nc(data,file):
+    """save xarray dataset data to file
+    Create two files : (file).nc containing the data and (file).dim containing
+    informations to reconstruct non numeric dimensions"""
+    
+    #set of non-numeric dims
+    Sdim = {k for k,v in data.coords.items() if not np.issubdtype(v.dtype,np.number)}
+    #TODO / check if it's work with complex numbers  and dates ?
+    dim_save = dict()
+    for dim in Sdim:
+        dim_save[dim] = data[dim]
+        data[dim] = np.arange(data.dims[dim])
+    data.to_netcdf(file+'.nc')
+    with open(file+'.dim','wb') as f:
+        pickle.dump(dim_save,f)
+
+def load_nc(file):
+    """load array from nc file
+    if there is a .dim file, reconstruct non numeric dimensions"""
+    
+    data = xr.open_dataset(file+'.nc')
+    #TO DO : chexck if file+'.dim"' exists
+    with open(file+'.dim','rb') as f:
+        dim_save = pickle.load(f)
+    for dim in dim_save:
+        data[dim] = dim_save[dim]
+    return data
+
+    
