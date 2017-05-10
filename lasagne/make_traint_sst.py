@@ -13,16 +13,19 @@ import os
 
 #%% prepare_data_sst
 datadir = '../data'
-outdir = '../data/nn_sst'
+outdir = '../data/nn_sst_long'
 fname =  'data_sst_keras'
 
 #data = xr.open_dataset(os.path.join(datadir,fname))
 data = load_nc(os.path.join(datadir,fname))
 
-params = {'pool_size_':(3,3),'n_feat_in_': 5, 'network_type_': 'all', 'n_feat_out_': 7, 'nhid2_': 10, 'nhid1_': 12}
-model = kerasnn(shapef_=data.Xval.shape[1:],nb_epoch_=50)
+params = {'pool_size_':(3,3),'n_feat_in_': 7, 'network_type_': 'all', 'n_feat_out_': 7, 'nhid2_': 11, 'nhid1_': 11}
+model = kerasnn(shapef_=data.Xval.shape[1:],nb_epoch_=300)
 model.set_params(**params)
+model.set_shape()
+model.set_model()
+print("Size of the learning dataset:",data.Xapp.shape[0])
+print("Number of weights:",nweights(model.nn_))
 
 #%% Train
 make_train(data,model,outdir)
-print("Number of weights:",nweights(model.nn_))
