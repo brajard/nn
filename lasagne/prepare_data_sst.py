@@ -15,7 +15,7 @@ import pickle
 
 #%% prepare_data_sst
 nseq = 6
-first_time = 2*30
+first_time = 2*30 # in days
 datadir = '../data'
 fname = 'sst_norm.nc'
 outname = 'data_sst_keras'
@@ -24,7 +24,7 @@ data_names = [k for k in Xtmp.data_vars]
 L = [Xtmp[fname] for fname in data_names]
 Xtmp = xr.concat(L,dim='parameters')
 Xtmp['parameters']=('parameters',data_names)
-Xtmp=Xtmp.expand_dims('par') #Simension 1 chanel
+Xtmp=Xtmp.expand_dims('par') #Dimension 1 : chanel
 Xtmp['par']=('par',[0])
 
 Xtmp = Xtmp.transpose('dates','parameters','par','xind','yind')
