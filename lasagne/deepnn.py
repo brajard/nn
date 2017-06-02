@@ -36,6 +36,15 @@ class kerasnn (BaseEstimator, RegressorMixin):
     y_ : array, shape = [n_samples]
     The labels passed during :meth:`fit`"""
 
+    #Networks with temporal input
+    temp_net = {'all','lstm','rae'}
+
+    #Network with static input
+    stat_net = {'dense','conv'}
+
+    #Allnets
+    nets = temp_net + stat_net
+    
     def __init__(self,shapef_=None,n_feat_in_=5,filter_size_in_=3,n_feat_out_=5,filter_size_out_=3,nhid1_=12,
                  nhid2_=12,pool_size_=(2,2),lr_=0.001,
                  batch_size_=256,nb_epoch_=50,validation_split_=0.05,init_=0,network_type_='all'):
@@ -68,9 +77,9 @@ class kerasnn (BaseEstimator, RegressorMixin):
         if shapex is None:
             shapex = tuple([1])+tuple([nfeature])
         assert(nfeature==shapex[1]),'wrong size of X'
-        if self.network_type_ == 'all' or self.network_type_ == 'lstm':
+        if self.network_type_ in kerasnn.temp_net:
             self.shape_ = tuple([shapex[0]])+tuple(self.shapef_) 
-        elif self.network_type_ == 'dense' or self.network_type_ == 'conv':
+        elif self.network_type_ in kerasnn.stat_net:
             self.shape_ = tuple([shapex[0]])+tuple([self.shapef_[0]*self.shapef_[1]])+tuple(self.shapef_[2:])
         else:
             raise ValueError('not a valid model type')

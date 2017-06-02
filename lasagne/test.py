@@ -42,7 +42,6 @@ def define_model_cnn(shape,
                      filter_size_in,
                      filter_size_out,
                      pool_size):
-    Lshape = [shape]
    
     input_img = Input(shape=shape[1:])
     x = input_img

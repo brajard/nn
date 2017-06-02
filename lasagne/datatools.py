@@ -326,6 +326,67 @@ def prepare_data(
     data = xr.merge([Xapp,yapp,Xval,yval])
 
     return data,scaler
+
+def cropsize (insize,outsize):
+    """Define the crop size for making insize to be outsize"""
+    f=lambda delta:(delta//2,delta-delta//2)
+    return tuple(f(ins-out) for (ins,out) in zip(insize,outsize))
+
+def define_model_rae(shape,
+                     n_feat_in,
+                     n_feat_out,
+                     filter_size_in,
+                     filter_size_out,
+                     pool_size):
+
+    """Define a auto-encoder with a LSTM model (recurrent auto-encoder or rae)
+    """
+    input_img = Input(shape=shape[1:])
+    x = input_img
+    #print(Model(inputs=input_img,outputs=x).output_shape)   
+    lsize = [] #succesive size to reconstruct
+    first = True #Special treatment for the first iteration
+    for (nfeat,filtsize) in zip(n_feat_in,filter_size_in):
+        lsize.append(Model(inputs=input_img,outputs=x).output_shape[-2:])
+        x = TimeDistributed(Conv2D(nfeat,(filtsize,filtsize),
+                                   data_format='channels_first',
+                                   padding='same'))(x)
+        x = TimeDistributed(MaxPooling2D(pool_size=pool_size,
+                                         data_format='channels_first'))(x)
+       # print(Model(inputs=input_img,outputs=x).output_shape)   
+    
+    oshape = Model(inputs=input_img,outputs=x).output_shape
+    x = TimeDistributed(Flatten())(x)
+    #print(lsize)
+    #print(Model(inputs=input_img,outputs=x).output_shape)
+     
+    nbatch,nseq,nfeat = Model(inputs=input_img,outputs=x).output_shape
+    
+#    
+    x = LSTM(int(nfeat),return_sequences=False)(x)
+    x = Reshape(oshape[2:])(x)#same shape of the output of the encoder
+    #without batch and nseq
+    print(Model(inputs=input_img,outputs=x).output_shape)
+    
+    for (nfeat,filtsize) in zip(n_feat_out,filter_size_out):
+        
+        x = Conv2DTranspose(nfeat,(filtsize,filtsize),
+                   data_format='channels_first',
+                   padding='valid')(x)
+        x= UpSampling2D(size=pool_size,
+                            data_format='channels_first')(x)
+
+        cropping = cropsize(Model(inputs=input_img,outputs=x).output_shape[-2:],lsize.pop())
+        x=Cropping2D(cropping=cropping, data_format='channels_first')(x)
+      #  print(Model(inputs=input_img,outputs=x).output_shape)
+
+      #Add a last cnn (same characteristic as the last one)
+      x = Conv2D(1,(filter_size_out[-1],filter_size_out[-1]),
+                 data_format='channels_first',
+                 padding='same')(x)
+#    
+    model = Model (inputs=input_img,outputs=x)         
+    return model
     
 def define_model_Conv(shape,
                      n_feat_in=5,
