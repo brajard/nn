@@ -11,6 +11,7 @@ from sklearn.utils.validation import check_X_y, check_array
 from operator import mul
 from functools import reduce
 from datatools import define_model_all,  define_model_lstm, define_model_Dense, define_model_Conv
+from keras.callbacks import EarlyStopping
 
 #Some remarks
 #all parameters should be named the same way in __init__method and for attributes
@@ -122,7 +123,7 @@ class kerasnn (BaseEstimator, RegressorMixin):
         self.set_model()
         callbacks = None
         if self.earlystop_:
-            callbacks = [keras.callbacks.EarlyStopping(monitor='val_loss', patience=5, verbose=1, mode='auto')]
+            callbacks = [EarlyStopping(monitor='val_loss', patience=5, verbose=1, mode='auto')]
         self.history_ = self.nn_.fit(self.XX_,self.y_,batch_size=self.batch_size_,\
                                   nb_epoch=self.nb_epoch_,\
                                   callbacks=callbacks,\
