@@ -38,7 +38,7 @@ class kerasnn (BaseEstimator, RegressorMixin):
 
     def __init__(self,shapef_=None,n_feat_in_=5,filter_size_in_=3,n_feat_out_=5,filter_size_out_=3,nhid1_=12,
                  nhid2_=12,pool_size_=(2,2),lr_=0.001,
-                 batch_size_=256,nb_epoch_=50,validation_split_=0.05,init_=0,network_type_='all'):
+                 batch_size_=256,nb_epoch_=50,validation_split_=0.05,init_=0,network_type_='all',earlystop=True):
         if not shapef_:
             raise ValueError('shapef_ argument not set')
         self.shapef_ = shapef_
@@ -54,6 +54,7 @@ class kerasnn (BaseEstimator, RegressorMixin):
         self.validation_split_ = validation_split_
         self.init_=init_
         self.lr_=lr_
+        self.earlystop_=earlystop
         self.network_type_=network_type_
         self.paramset_ = {'shapef_','n_feat_in_','filter_size_in_','n_feat_out_','filter_size_out_','nhid1_',
                           'nhid2_','init_','pool_size_',
@@ -119,9 +120,12 @@ class kerasnn (BaseEstimator, RegressorMixin):
         self.reshape(X) #compute self.XX_
         self.y_ = y
         self.set_model()
-  
+        callbacks = None
+        if self.earlystop_:
+            callbacks = [keras.callbacks.EarlyStopping(monitor='val_loss', patience=5, verbose=1, mode='auto')]
         self.history_ = self.nn_.fit(self.XX_,self.y_,batch_size=self.batch_size_,\
                                   nb_epoch=self.nb_epoch_,\
+                                  callbacks=callbacks,\
                                   validation_split=self.validation_split_,verbose=verbose)
     
         return self
