@@ -55,6 +55,7 @@ class kerasnn (BaseEstimator, RegressorMixin):
         self.validation_split_ = validation_split_
         self.init_=init_
         self.lr_=lr_
+        print(earlystop)
         self.earlystop_=earlystop
         print(self.earlystop_)
         self.network_type_=network_type_
