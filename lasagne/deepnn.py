@@ -39,7 +39,7 @@ class kerasnn (BaseEstimator, RegressorMixin):
 
     def __init__(self,shapef_=None,n_feat_in_=5,filter_size_in_=3,n_feat_out_=5,filter_size_out_=3,nhid1_=12,
                  nhid2_=12,pool_size_=(2,2),lr_=0.001,
-                 batch_size_=256,nb_epoch_=50,validation_split_=0.05,init_=0,network_type_='all',earlystop=True):
+                 batch_size_=256,nb_epoch_=50,validation_split_=0.05,init_=0,network_type_='all',earlystop_=True):
         if not shapef_:
             raise ValueError('shapef_ argument not set')
         self.shapef_ = shapef_
@@ -56,13 +56,13 @@ class kerasnn (BaseEstimator, RegressorMixin):
         print("validation_split_(init):",self.validation_split_)
         self.init_=init_
         self.lr_=lr_
-        print("earlystop:",earlystop)
-        self.earlystop_=earlystop
+        print("earlystop:",earlystop_)
+        self.earlystop_=earlystop_
         print("self.earlstop_(init):",self.earlystop_)
         self.network_type_=network_type_
         self.paramset_ = {'shapef_','n_feat_in_','filter_size_in_','n_feat_out_','filter_size_out_','nhid1_',
                           'nhid2_','init_','pool_size_',
-                          'batch_size_','nb_epoch_','validation_split_','lr_','network_type_'}
+                          'batch_size_','nb_epoch_','validation_split_','earlystop_','lr_','network_type_'}
 
     def reshape(self,X):
         self.set_shape(X.shape)
