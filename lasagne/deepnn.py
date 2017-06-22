@@ -124,6 +124,7 @@ class kerasnn (BaseEstimator, RegressorMixin):
         callbacks = None
         if self.earlystop_:
             callbacks = [EarlyStopping(monitor='val_loss', patience=5, verbose=1, mode='auto')]
+        print("callback",callbacks)
         self.history_ = self.nn_.fit(self.XX_,self.y_,batch_size=self.batch_size_,\
                                   nb_epoch=self.nb_epoch_,\
                                   callbacks=callbacks,\
