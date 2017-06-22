@@ -53,12 +53,9 @@ class kerasnn (BaseEstimator, RegressorMixin):
         self.batch_size_ = batch_size_
         self.nb_epoch_ = nb_epoch_
         self.validation_split_ = validation_split_
-        print("validation_split_(init):",self.validation_split_)
         self.init_=init_
         self.lr_=lr_
-        print("earlystop:",earlystop_)
         self.earlystop_=earlystop_
-        print("self.earlstop_(init):",self.earlystop_)
         self.network_type_=network_type_
         self.paramset_ = {'shapef_','n_feat_in_','filter_size_in_','n_feat_out_','filter_size_out_','nhid1_',
                           'nhid2_','init_','pool_size_',
@@ -125,11 +122,9 @@ class kerasnn (BaseEstimator, RegressorMixin):
         self.y_ = y
         self.set_model()
         callbacks = None
-        print("self.earlstop_(fit):",self.earlystop_)
 
         if self.earlystop_:
             callbacks = [EarlyStopping(monitor='val_loss', patience=5, verbose=1, mode='auto')]
-        print("callback",callbacks)
         self.history_ = self.nn_.fit(self.XX_,self.y_,batch_size=self.batch_size_,\
                                   nb_epoch=self.nb_epoch_,\
                                   callbacks=callbacks,\
