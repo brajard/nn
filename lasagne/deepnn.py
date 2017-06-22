@@ -53,6 +53,7 @@ class kerasnn (BaseEstimator, RegressorMixin):
         self.batch_size_ = batch_size_
         self.nb_epoch_ = nb_epoch_
         self.validation_split_ = validation_split_
+        print("validation_split_(init):",self.validation_split_)
         self.init_=init_
         self.lr_=lr_
         print("earlystop:",earlystop)
